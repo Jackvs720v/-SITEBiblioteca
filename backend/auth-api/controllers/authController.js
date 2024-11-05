@@ -11,7 +11,7 @@ exports.register = async (req, res) => {
         const hashedPassword = await bcrypt.hash(password, 10); // O número 10 representa o "salt rounds"
 
         // Cria um novo usuário com nome de usuário e senha criptografada
-        const newUser = new User({ username, password: hashedPassword });
+        const newUser = new User({ username, password: hashedPassword, contact });
 
         await newUser.save(); // Salva o usuário no banco de dados
         res.status(201).json({ message: 'Usuário registrado com sucesso' }); // Responde com sucesso

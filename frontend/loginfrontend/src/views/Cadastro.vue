@@ -31,7 +31,7 @@
       </div>
       <div class="form-group">
         <label for="password">Senha:</label>
-        <input v-model="password" type="password" id="password" required />
+        <input v-model="password" type="password" id="senha" required />
       </div>
       <button type="submit">Cadastrar</button>
     </form>
@@ -45,27 +45,27 @@ import api from '../axios'; // Importa a configuração do Axios
 export default {
   data() {
     return {
-      name: '',
-      contact: '',
-      street: '',
-      neighborhood: '',
-      number: '',
+      nome: '',
+      contato: '',
+      rua: '',
+      bairro: '',
+      numero: '',
       email: '',
-      password: '',
-      message: '',
+      senha: '',
+      messagem: '',
     };
   },
   methods: {
     async cadastroUser() {
       try {
         const response = await api.post('http://localhost:5000/api/auth/register', {
-          name: this.name,
-          contact: this.contact,
-          street: this.street,
-          neighborhood: this.neighborhood,
-          number: this.number,
+          nome: this.nome,
+          contato: this.contato,
+          rua: this.rua,
+          bairro: this.bairro,
+          numero: this.numero,
           email: this.email,
-          password: this.password,
+          senha: this.senha,
         });
         this.message = 'Cadastro bem-sucedido!';
         localStorage.setItem('token', response.data.token); // Armazena o token JWT no localStorage
