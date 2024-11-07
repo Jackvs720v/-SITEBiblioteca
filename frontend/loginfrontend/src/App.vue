@@ -16,6 +16,6 @@ export default {
  
 <style>
 nav{
-  margin-bottom: 20px;
+
 }
 </style>

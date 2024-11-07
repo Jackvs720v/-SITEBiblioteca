@@ -16,10 +16,12 @@
       <div class="button-group">
         <button type="submit">Logar</button>
         <button type="button" @click="forgotPassword">Esqueceu a senha?</button>
+        <button type="button" @click="goToCadastro">Cadastro</button>
+        <button type="button" @click="goToCrud">Crud</button>
+
       </div>
       <div class="button-group">
-        <!-- Altere aqui para usar $router.push -->
-        <button type="button" @click="goToCadastro">Cadastro</button>
+        
       </div>
     </form>
     <p v-if="message">{{ message }}</p>
@@ -60,93 +62,113 @@ export default {
     // Método para redirecionar para a página de Cadastro
     goToCadastro() {
       this.$router.push('/cadastro');
+    },
+    goToCrud(){
+      this.$router.push('/appbook');
     }
   }
 };
 </script>
-
-
 <style scoped>
+/* Estilos principais da página de login */
 .login {
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
   height: 100vh;
-  background-color: #1c3b4c;
+  background: linear-gradient(135deg, #1c3b4c, #274c64);
   font-family: 'Arial', sans-serif;
 }
 
+/* Cabeçalho do login */
 .login-header {
   text-align: center;
   margin-bottom: 20px;
 }
 
 .logo {
-  width: 80px;
-  margin-bottom: 10px;
+  width: 50%;
+  margin-bottom: 10%;
 }
 
 h1 {
-  color: white;
+  color: #ffffff;
+  font-size: 24px;
+  font-weight: bold;
 }
 
+/* Formulário de login */
 form {
   background-color: #2a4d61;
-  padding: 20px;
-  border-radius: 8px;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-  width: 300px;
+  padding: 25px;
+  border-radius: 10px;
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+  width: 100%;
+  max-width: 320px;
   text-align: center;
 }
 
+/* Grupos de formulários */
 .form-group {
-  margin-bottom: 15px;
+  margin-bottom: 20px;
 }
 
 label {
   display: block;
-  color: white;
+  color: #ffffff;
   margin-bottom: 5px;
   font-weight: bold;
+  font-size: 14px;
 }
 
+/* Campo de entrada */
 input {
   width: 100%;
-  padding: 10px;
-  border: none;
-  border-radius: 5px;
+  padding: 12px;
+  border: 2px solid #2a4d61;
+  border-radius: 8px;
   margin-bottom: 10px;
-  transition: border-color 0.3s;
+  background-color: #f5f7f9;
+  transition: border-color 0.3s, box-shadow 0.3s;
 }
 
 input:focus {
   border-color: #007bff;
+  box-shadow: 0 0 8px rgba(0, 123, 255, 0.4);
   outline: none;
 }
 
+/* Grupo de botões */
 .button-group {
   display: flex;
   justify-content: space-between;
+  flex-wrap: wrap;
 }
 
 button {
-  padding: 10px;
-  background-color: white;
+  padding: 10px 15px;
+  background-color: #ffffff;
   border: none;
-  border-radius: 5px;
+  border-radius: 8px;
   cursor: pointer;
   font-size: 16px;
-  width: 45%;
-  transition: background-color 0.3s;
+  font-weight: bold;
+  width: 48%; /* Ajusta para manter uma boa largura entre os botões */
+  transition: background-color 0.3s, transform 0.3s;
+  color: #1c3b4c;
 }
 
 button:hover {
   background-color: #f0f0f0;
+  transform: scale(1.05);
 }
 
+/* Mensagem de erro */
 p {
-  margin-top: 10px;
+  margin-top: 15px;
   color: #e74c3c;
+  font-size: 14px;
+  font-weight: bold;
 }
 </style>

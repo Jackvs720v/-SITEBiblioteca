@@ -8,8 +8,8 @@
 </template>
 
 <script>
-import BookList from './components/BookList.vue'
-import BookForm from './components/BookForm.vue'
+import BookList from '../components/BookList.vue'
+import BookForm from '../components/BookForm.vue'
 
 export default {
   data() {
@@ -36,7 +36,7 @@ export default {
 </script>
 
 <style>
-#app {
+#appBook {
   font-family: 'Poppins', Arial, sans-serif; /* Fonte moderna */
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
