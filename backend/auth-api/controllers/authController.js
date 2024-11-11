@@ -5,13 +5,18 @@ const jwt = require('jsonwebtoken'); // Importa jsonwebtoken para criar tokens J
 // Função para registrar novos usuários
 exports.register = async (req, res) => {
     const { username, password } = req.body; // Pega dados do corpo da requisição
+    const { nome, contato, rua, bairro, numero ,username, password } = req.body; // Pega dados do corpo da requisição
 
     try {
         // Criptografa a senha antes de salvar no banco
         const hashedPassword = await bcrypt.hash(password, 10); // O número 10 representa o "salt rounds"
 
         // Cria um novo usuário com nome de usuário e senha criptografada
+<<<<<<< HEAD
         const newUser = new User({ username, password: hashedPassword, contact });
+=======
+        const newUser = new User({ nome, contato, rua, bairro, numero, username, password: hashedPassword });
+>>>>>>> 0f4bb2667507c23a578f5a858ec87a0793358c17
 
         await newUser.save(); // Salva o usuário no banco de dados
         res.status(201).json({ message: 'Usuário registrado com sucesso' }); // Responde com sucesso

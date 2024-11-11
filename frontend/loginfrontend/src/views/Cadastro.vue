@@ -58,12 +58,21 @@ export default {
   methods: {
     async cadastroUser() {
       try {
+<<<<<<< HEAD
         const response = await api.post('http://localhost:5000/api/auth/register', {
           nome: this.nome,
           contato: this.contato,
           rua: this.rua,
           bairro: this.bairro,
           numero: this.numero,
+=======
+        const response = await api.post('/auth/register', {
+          name: this.name,
+          contact: this.contact,
+          street: this.street,
+          neighborhood: this.neighborhood,
+          number: this.number,
+>>>>>>> 0f4bb2667507c23a578f5a858ec87a0793358c17
           email: this.email,
           senha: this.senha,
         });

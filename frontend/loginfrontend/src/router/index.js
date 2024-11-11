@@ -2,6 +2,7 @@ import { createRouter, createWebHistory } from 'vue-router';
 import Login from '../views/Login.vue';
 import Cadastro from '@/views/Cadastro.vue'; 
 import Dashboard from '../views/Dashboard.vue';
+import AppBook from "../views/AppBook.vue";
  
 const routes = [
   {
@@ -21,6 +22,11 @@ const routes = [
     component: Cadastro,
   },
   {
+    path: '/appbook',
+    name: 'appbook',
+    component: AppBook,
+  },
+  {
     path: '/:catchAll(.*)', // Usando a nova sintaxe para rotas coringa
     redirect: '/login',
   },
@@ -34,7 +40,7 @@ const router = createRouter({
 // Proteção das rotas
 router.beforeEach((to, from, next) => {
   const loggedIn = localStorage.getItem('token');
- 
+  
   if (to.matched.some(record => record.meta.requiresAuth) && !loggedIn) {
     next('/login');
   } else {
