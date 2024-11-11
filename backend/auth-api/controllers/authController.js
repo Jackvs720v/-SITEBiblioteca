@@ -4,7 +4,6 @@ const jwt = require('jsonwebtoken'); // Importa jsonwebtoken para criar tokens J
 
 // Função para registrar novos usuários
 exports.register = async (req, res) => {
-    const { username, password } = req.body; // Pega dados do corpo da requisição
     const { nome, contato, rua, bairro, numero ,username, password } = req.body; // Pega dados do corpo da requisição
 
     try {
