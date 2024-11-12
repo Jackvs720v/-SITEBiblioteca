@@ -6,32 +6,32 @@
     </div>
     <form @submit.prevent="cadastroUser">
       <div class="form-group">
-        <label for="name">Nome:</label>
-        <input v-model="name" type="text" id="name" required />
+        <label for="nome">Nome:</label>
+        <input v-model="nome" type="text" id="nome" required />
       </div>
       <div class="form-group">
-        <label for="contact">Contato:</label>
-        <input v-model="contact" type="tel" id="contact" required />
+        <label for="contato">Contato:</label>
+        <input v-model="contato" type="tel" id="contato" required />
       </div>
       <div class="form-group">
-        <label for="street">Rua:</label>
-        <input v-model="street" type="text" id="street" required />
+        <label for="rua">Rua:</label>
+        <input v-model="rua" type="text" id="rua" required />
       </div>
       <div class="form-group">
-        <label for="neighborhood">Bairro:</label>
-        <input v-model="neighborhood" type="text" id="neighborhood" required />
+        <label for="bairro">Bairro:</label>
+        <input v-model="bairro" type="text" id="bairro" required />
       </div>
       <div class="form-group">
-        <label for="number">Nº:</label>
-        <input v-model="number" type="number" id="number" required />
+        <label for="numero">Nº:</label>
+        <input v-model="numero" type="number" id="numero" required />
       </div>
       <div class="form-group">
-        <label for="email">Email:</label>
-        <input v-model="email" type="email" id="email" required />
+        <label for="username">Email:</label>
+        <input v-model="username" type="email" id="username" required />
       </div>
       <div class="form-group">
         <label for="password">Senha:</label>
-        <input v-model="password" type="password" id="senha" required />
+        <input v-model="password" type="password" id="password" required />
       </div>
       <button type="submit">Cadastrar</button>
     </form>
@@ -50,31 +50,21 @@ export default {
       rua: '',
       bairro: '',
       numero: '',
-      email: '',
-      senha: '',
-      messagem: '',
+      username: '',
+      password: '',
     };
   },
   methods: {
     async cadastroUser() {
       try {
-<<<<<<< HEAD
-        const response = await api.post('http://localhost:5000/api/auth/register', {
+        const response = await api.post('/auth/register', {
           nome: this.nome,
           contato: this.contato,
           rua: this.rua,
           bairro: this.bairro,
           numero: this.numero,
-=======
-        const response = await api.post('/auth/register', {
-          name: this.name,
-          contact: this.contact,
-          street: this.street,
-          neighborhood: this.neighborhood,
-          number: this.number,
->>>>>>> 0f4bb2667507c23a578f5a858ec87a0793358c17
-          email: this.email,
-          senha: this.senha,
+          username: this.username,
+          password: this.password, 
         });
         this.message = 'Cadastro bem-sucedido!';
         localStorage.setItem('token', response.data.token); // Armazena o token JWT no localStorage
@@ -156,14 +146,15 @@ input:focus {
 
 button {
   padding: 12px;
-  background-color: white;
+  background-color: #ffffff;
   border: none;
   border-radius: 5px;
   cursor: pointer;
   font-size: 16px;
-  width: 100%;
-  transition: background-color 0.3s;
   font-weight: bold;
+  width: 48%; /* Ajusta para manter uma boa largura entre os botões */
+  transition: background-color 0.3s, transform 0.3s;
+  color: #1c3b4c;
 }
 
 button:hover {
