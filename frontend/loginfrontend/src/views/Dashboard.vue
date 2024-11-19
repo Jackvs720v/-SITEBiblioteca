@@ -1,5 +1,5 @@
 <template>
-    <div class="dashboard">
+    <div id="dashboard">
       <h1>Bem-vindo ao Dashboard!</h1>
       <p>Você está autenticado.</p>
       <button @click="logout">Sair</button>
@@ -17,7 +17,7 @@
   };
   </script>
   <style scoped>
-  .dashboard {
+  #dashboard {
     display: flex;
     flex-direction: column;
     align-items: center;

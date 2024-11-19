@@ -3,6 +3,8 @@ import Login from '../views/Login.vue';
 import Cadastro from '@/views/Cadastro.vue'; 
 import Dashboard from '../views/Dashboard.vue';
 import AppBook from "../views/AppBook.vue";
+import Principal from "../views/Principal.vue";
+
  
 const routes = [
   {
@@ -25,6 +27,11 @@ const routes = [
     path: '/appbook',
     name: 'appbook',
     component: AppBook,
+  },
+  {
+    path: '/principal',
+    name: 'principal',
+    component: Principal,
   },
   {
     path: '/:catchAll(.*)', // Usando a nova sintaxe para rotas coringa

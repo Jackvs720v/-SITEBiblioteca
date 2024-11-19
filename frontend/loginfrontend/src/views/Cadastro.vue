@@ -1,8 +1,7 @@
 <template>
-  <div class="register">
+  <div id="register">
     <div class="register-header">
-      <img src="@/assets/logo.png" alt="DreamBooks Logo" class="logo">
-      <h1>Cadastrar</h1>
+      <img src="@/assets/logoCadastro.png" alt="DreamBooks Logo" class="logo">
     </div>
     <form @submit.prevent="cadastroUser">
       <div class="form-group">
@@ -80,7 +79,7 @@ export default {
 </script>
 
 <style scoped>
-.register {
+#register {
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -97,9 +96,10 @@ export default {
 }
 
 .logo {
-  width: 80px;
-  margin-bottom: 10px;
+  width: 50%;
+  margin-bottom: 10%;
 }
+
 
 h1 {
   color: white;

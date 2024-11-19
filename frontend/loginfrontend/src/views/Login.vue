@@ -1,8 +1,7 @@
 <template>
-  <div class="login">
+  <div id="login">
     <div class="login-header">
-      <img src="@/assets/logo.png" alt="DreamBooks Logo" class="logo">
-      <h1>Login</h1>
+      <img src="@/assets/logoLogin.png" alt="DreamBooks Logo" class="logo">
     </div>
     <form @submit.prevent="loginUser">
       <div class="form-group">
@@ -14,10 +13,10 @@
         <input v-model="password" type="password" id="password" required />
       </div>
       <div class="button-group">
-        <button type="submit">Logar</button>
+        <button type="submit" @click="principalT">Logar</button>
         <button type="button" @click="forgotPassword">Esqueceu a senha?</button>
         <button type="button" @click="goToCadastro">Cadastro</button>
-        <button type="button" @click="goToCrud">Crud</button>
+        <button type="button" @click="registerBooks">Crud</button>
 
       </div>
       <div class="button-group">
@@ -60,8 +59,11 @@ export default {
       // Lógica para recuperação de senha
     },
     // Método para redirecionar para a página de Cadastro
-    goToCadastro() {
+    registerBooks() {
       this.$router.push('/cadastro');
+    },
+    principalT() {
+      this.$router.push('/principal');
     },
     goToCrud(){
       this.$router.push('/appbook');
@@ -71,7 +73,7 @@ export default {
 </script>
 <style scoped>
 /* Estilos principais da página de login */
-.login {
+#login {
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -79,6 +81,7 @@ export default {
   height: 100vh;
   background: linear-gradient(135deg, #1c3b4c, #274c64);
   font-family: 'Arial', sans-serif;
+  padding: 20px;
 }
 
 /* Cabeçalho do login */
