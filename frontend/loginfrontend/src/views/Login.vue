@@ -1,5 +1,5 @@
 <template>
-  <div class="login">
+  <div id="login">
     <div class="login-header">
       <img src="@/assets/logo.png" alt="DreamBooks Logo" class="logo">
       <h1>Login</h1>
@@ -48,7 +48,7 @@ export default {
         });
         this.message = 'Login bem-sucedido!';
         localStorage.setItem('token', response.data.token);
-        this.$router.push('/dashboard');
+        this.$router.push('/mainFrame');
       } catch (error) {
         this.message = error.response && error.response.data && error.response.data.message
           ? error.response.data.message
@@ -71,7 +71,7 @@ export default {
 </script>
 <style scoped>
 /* Estilos principais da página de login */
-.login {
+#login {
   display: flex;
   flex-direction: column;
   align-items: center;

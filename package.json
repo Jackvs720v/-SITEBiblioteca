@@ -1,5 +1,6 @@
 {
   "dependencies": {
+    "chart.js": "^4.4.6",
     "mongodb": "^6.10.0"
   }
 }
