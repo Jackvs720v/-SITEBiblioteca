@@ -2,26 +2,22 @@
   <div id="login">
     <div class="login-header">
       <img src="@/assets/logo.png" alt="DreamBooks Logo" class="logo">
-      <h1>Login</h1>
+      <h1>DreamBooks</h1>
     </div>
     <form @submit.prevent="loginUser">
       <div class="form-group">
         <label for="email">Email:</label>
-        <input v-model="username" type="email" id="email" required />
+        <input v-model="username" type="email" id="email" placeholder="Digite seu email" required />
       </div>
       <div class="form-group">
         <label for="password">Senha:</label>
-        <input v-model="password" type="password" id="password" required />
+        <input v-model="password" type="password" id="password" placeholder="Digite sua senha" required />
       </div>
       <div class="button-group">
         <button type="submit">Logar</button>
         <button type="button" @click="forgotPassword">Esqueceu a senha?</button>
         <button type="button" @click="goToCadastro">Cadastro</button>
         <button type="button" @click="goToCrud">Crud</button>
-
-      </div>
-      <div class="button-group">
-        
       </div>
     </form>
     <p v-if="message">{{ message }}</p>
@@ -29,7 +25,7 @@
 </template>
 
 <script>
-import api from '../axios'; // Importa a configuração do Axios
+import api from '../axios';
 
 export default {
   data() {
@@ -50,38 +46,38 @@ export default {
         localStorage.setItem('token', response.data.token);
         this.$router.push('/mainFrame');
       } catch (error) {
-        this.message = error.response && error.response.data && error.response.data.message
-          ? error.response.data.message
-          : 'Erro ao fazer login.';
+        this.message = error.response?.data?.message || 'Erro ao fazer login.';
       }
     },
     forgotPassword() {
       this.message = "Redirecionando para recuperação de senha.";
-      // Lógica para recuperação de senha
     },
-    // Método para redirecionar para a página de Cadastro
     goToCadastro() {
       this.$router.push('/cadastro');
     },
-    goToCrud(){
+    goToCrud() {
       this.$router.push('/appbook');
     }
   }
 };
 </script>
+
 <style scoped>
-/* Estilos principais da página de login */
+/* Ajustando para ocupar a tela inteira */
 #login {
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
   height: 100vh;
+  width: 100vw;
+  margin: 0;
+  padding: 0;
   background: linear-gradient(135deg, #1c3b4c, #274c64);
   font-family: 'Arial', sans-serif;
 }
 
-/* Cabeçalho do login */
+/* Centralizando o cabeçalho */
 .login-header {
   text-align: center;
   margin-bottom: 20px;
@@ -94,22 +90,22 @@ export default {
 
 h1 {
   color: #ffffff;
-  font-size: 24px;
+  font-size: 36px;
   font-weight: bold;
+  margin: 0;
 }
 
-/* Formulário de login */
+/* Ajuste do formulário */
 form {
   background-color: #2a4d61;
   padding: 25px;
   border-radius: 10px;
   box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
-  width: 100%;
+  width: 90%;
   max-width: 320px;
   text-align: center;
 }
 
-/* Grupos de formulários */
 .form-group {
   margin-bottom: 20px;
 }
@@ -122,13 +118,11 @@ label {
   font-size: 14px;
 }
 
-/* Campo de entrada */
 input {
   width: 100%;
   padding: 12px;
   border: 2px solid #2a4d61;
   border-radius: 8px;
-  margin-bottom: 10px;
   background-color: #f5f7f9;
   transition: border-color 0.3s, box-shadow 0.3s;
 }
@@ -139,7 +133,7 @@ input:focus {
   outline: none;
 }
 
-/* Grupo de botões */
+/* Centralizando botões */
 .button-group {
   display: flex;
   justify-content: space-between;
@@ -154,9 +148,9 @@ button {
   cursor: pointer;
   font-size: 16px;
   font-weight: bold;
-  width: 48%; /* Ajusta para manter uma boa largura entre os botões */
-  transition: background-color 0.3s, transform 0.3s;
+  width: 48%;
   color: #1c3b4c;
+  transition: background-color 0.3s, transform 0.3s;
 }
 
 button:hover {
