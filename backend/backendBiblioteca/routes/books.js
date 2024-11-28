@@ -30,7 +30,7 @@ router.use('/uploads', express.static(path.join(__dirname, '../uploads')));
  
 // *** CRIAÇÃO (POST) ***
 router.post('/', upload, async (req, res) => {
-  const { title, author, year, isbn, publisher, synopsis } = req.body;
+  const { title, author, year, isbn, editora, sinopse } = req.body;
   const image = req.file ? `/uploads/${req.file.filename}` : ''; // Caminho acessível pela URL
  
   try {
@@ -66,7 +66,7 @@ router.put('/:id', upload, async (req, res) => {
   const { title, author, year, isbn, editora, sinopse } = req.body; // Extraímos os novos dados
   const image = req.file ? `/uploads/${req.file.filename}` : undefined; // Atualiza apenas se houver nova imagem
  
-  const updatedData = { title, author, isbn, image, editora, sinopse, };
+  const updatedData = { title, author, year, isbn, image, editora, sinopse, };
       if (image) updatedData.image = image;
  
   try {
@@ -102,37 +102,3 @@ router.delete('/:id', async (req, res) => {
 // Exportamos o roteador para ser usado no server.js
 module.exports = router;
  
-
-// *** LEITURA (GET) ***
-router.get('/', async (req, res) => {
-    try {
-        const books = await Book.find(); // Buscamos todos os livros
-        res.status(200).json(books); // Retornamos a lista de livros
-    } catch (error) {
-        res.status(500).json({ message: 'Erro ao buscar livros', error }); // Retornamos erro, se houver
-    }
-});
-
-// *** ATUALIZAÇÃO (PUT) ***
-router.put('/:id', async (req, res) => {
-    const { title, author, year } = req.body; // Extraímos os novos dados
-    try {
-        const updatedBook = await Book.findByIdAndUpdate(req.params.id, { title, author, year }, { new: true }); // Atualizamos o livro pelo ID
-        res.status(200).json(updatedBook); // Retornamos o livro atualizado
-    } catch (error) {
-        res.status(500).json({ message: 'Erro ao atualizar livro', error }); // Retornamos erro, se houver
-    }
-});
-
-// *** EXCLUSÃO (DELETE) ***
-router.delete('/:id', async (req, res) => {
-    try {
-        await Book.findByIdAndDelete(req.params.id); // Deletamos o livro pelo ID
-        res.status(200).json({ message: 'Livro deletado com sucesso' }); // Retornamos mensagem de sucesso
-    } catch (error) {
-        res.status(500).json({ message: 'Erro ao deletar livro', error }); // Retornamos erro, se houver
-    }
-});
-
-// Exportamos o roteador para ser usado no server.js
-module.exports = router;
