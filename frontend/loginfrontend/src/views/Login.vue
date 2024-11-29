@@ -1,7 +1,7 @@
 <template>
   <div id="login">
     <div class="login-header">
-      <img src="@/assets/logo.png" alt="DreamBooks Logo" class="logo">
+      <img src="@/assets/logoLogin.png" alt="DreamBooks Logo" class="logo">
       <h1>DreamBooks</h1>
     </div>
     <form @submit.prevent="loginUser">

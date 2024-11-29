@@ -2,50 +2,61 @@
   <div id="app">
     <!-- Navbar -->
     <nav class="navbar">
-      <div class="nav-logo">Minha Biblioteca</div>
-      <input 
-        type="text" 
-        class="nav-search" 
-        placeholder="Pesquisar livros..." 
-        v-model="searchQuery" 
-        @input="searchBooks" 
-      />
-      <div class="nav-icons">
-        <i class="icon fas fa-home"></i>
-        <i class="icon fas fa-book"></i>
-        <i class="icon fas fa-user"></i>
+      <div class="navbar-left">
+        <img src="@/assets/logo.png" alt="Logo" class="navbar-logo" />
+
+      </div>
+      <div class="navbar-center">
+        <div class="search-container">
+          <img src="@/assets/loupe.png" alt="Buscar" class="search-icon" />
+          <input
+            type="text"
+            class="navbar-search"
+            placeholder="Pesquisar livros..."
+            v-model="searchQuery"
+            @input="onSearch"
+          />
+          <img src="@/assets/filter.png" alt="Filtrar" class="search-icon" />
+        </div>
+        <img src="@/assets/users.png" alt="Users" class="icon right-icon" />
+      </div>
+      <div class="navbar-right">
+        <img src="@/assets/crud.png" alt="Crud" class="icon" />
+        <img src="@/assets/dashboard.png" alt="DashBoard" class="icon" />
+        <img src="@/assets/salvar.png" alt="Salvar" class="icon" />
+        <img src="@/assets/notificacao.png" alt="Notificação" class="icon" />
+        <img src="@/assets/perfil.png" alt="Perfil" class="icon" />
       </div>
     </nav>
 
-    <div class="main-content">
+    <!-- Main Layout -->
+    <div class="layout">
       <!-- Sidebar -->
       <aside class="sidebar">
-        <h3>Filtros</h3>
-        <label v-for="filter in filters" :key="filter.value">
-          <input 
-            type="checkbox" 
-            :value="filter.value" 
-            v-model="selectedFilters" 
-            @change="applyFilters" 
-          />
-          {{ filter.label }}
-        </label>
+        <h2 class="sidebar-title">Categorias</h2>
+        <ul class="sidebar-list">
+          <li v-for="item in categories" :key="item" class="sidebar-item">
+            <a href="#" class="sidebar-link">{{ item }}</a>
+          </li>
+        </ul>
       </aside>
 
-      <!-- Book List -->
-      <div class="book-container">
-        <div 
-          class="book-card" 
-          v-for="book in filteredBooks" 
-          :key="book.id"
-        >
-          <h3 class="book-title">{{ book.title }}</h3>
-          <p class="book-author">Autor: {{ book.author }}</p>
-          <p class="book-rating">Avaliação: {{ book.rating }}</p>
-          <p class="book-year">Ano: {{ book.year }}</p>
-          <button class="book-button">Ver mais</button>
-        </div>
-      </div>
+      <!-- Main Content -->
+      <main class="main-content">
+        <section class="section">
+          <h2 class="section-title">Destaques da Semana</h2>
+          <div class="book-grid">
+            <div v-for="book in filteredBooks" :key="book.id" class="book-card">
+              <img :src="book.cover" :alt="book.title" class="book-cover" />
+              <h3 class="book-title">{{ book.title }}</h3>
+              <p class="book-author">Autor: {{ book.author }}</p>
+              <p class="book-rating">Avaliação: {{ book.rating }}</p>
+              <p class="book-year">Ano: {{ book.year }}</p>
+              <button class="book-button">Ver mais</button>
+            </div>
+          </div>
+        </section>
+      </main>
     </div>
   </div>
 </template>
@@ -54,170 +65,221 @@
 export default {
   data() {
     return {
-      books: [
-        { id: 1, title: "Livro A", author: "Autor A", rating: "⭐⭐⭐⭐", year: 2022 },
-        { id: 2, title: "Livro B", author: "Autor B", rating: "⭐⭐⭐⭐⭐", year: 2021 },
-        { id: 3, title: "Livro C", author: "Autor C", rating: "⭐⭐⭐", year: 2022 }
-      ],
       searchQuery: "",
-      selectedFilters: [],
-      filters: [
-        { label: "Ano: 2022", value: "2022" },
-        { label: "Ano: 2021", value: "2021" },
-        { label: "Avaliação: ⭐⭐⭐⭐⭐", value: "5-stars" }
-      ]
+      categories: [
+        "Destaques",
+        "Ano",
+        "Autores",
+        "Gêneros",
+        "Favoritos",
+        "História",
+        "Fantasia",
+        "Ciência",
+        "Biografias",
+        "Romance",
+        "Suspense",
+        "Terror",
+        "Ficção Científica",
+      ],
+      books: [
+        { id: 1, title: "Livro A", author: "Autor A", rating: "⭐⭐⭐⭐", year: 2022, cover: "cover1.jpg" },
+        { id: 2, title: "Livro B", author: "Autor B", rating: "⭐⭐⭐⭐⭐", year: 2021, cover: "cover2.jpg" },
+        { id: 3, title: "Livro C", author: "Autor C", rating: "⭐⭐⭐", year: 2020, cover: "cover3.jpg" },
+        { id: 4, title: "Livro D", author: "Autor D", rating: "⭐⭐⭐⭐", year: 2021, cover: "cover4.jpg" },
+      ],
     };
   },
   computed: {
     filteredBooks() {
-      let filtered = this.books;
-
-      if (this.searchQuery) {
-        filtered = filtered.filter(book =>
-          book.title.toLowerCase().includes(this.searchQuery.toLowerCase())
-        );
-      }
-
-      if (this.selectedFilters.length) {
-        filtered = filtered.filter(book => {
-          return (
-            this.selectedFilters.includes(book.year.toString()) ||
-            (this.selectedFilters.includes("5-stars") && book.rating === "⭐⭐⭐⭐⭐")
-          );
-        });
-      }
-
-      return filtered;
-    }
+      return this.books.filter((book) =>
+        book.title.toLowerCase().includes(this.searchQuery.toLowerCase())
+      );
+    },
   },
   methods: {
-    searchBooks() {
-      // Apenas necessário para capturar input de busca no momento em tempo real.
+    onSearch() {
+      console.log("Busca: ", this.searchQuery);
     },
-    applyFilters() {
-      // Filtragem já é gerenciada pela computed property `filteredBooks`.
-    }
-  }
+  },
 };
 </script>
 
-<style scoped>
+<style>
 /* Navbar Styles */
 .navbar {
   display: flex;
-  align-items: center;
   justify-content: space-between;
-  background-color: #007bff;
-  color: white;
-  padding: 10px 20px;
+  align-items: center;
+  background-color: #bcd7e5;
+  padding: 15px 30px;
+  border-bottom: 2px solid #007bff;
 }
 
-.nav-logo {
-  font-size: 1.5em;
+.navbar-left {
+  display: flex;
+  align-items: center;
+}
+
+.navbar-logo {
+  height: 80px;
+  margin-right: 10px;
+}
+
+.navbar-title {
+  font-size: 2em;
   font-weight: bold;
+  color: #007bff;
 }
 
-.nav-search {
+.navbar-center {
+  display: flex;
+  align-items: center;
   flex: 1;
-  margin: 0 20px;
-  padding: 5px 10px;
-  font-size: 1em;
-  border-radius: 4px;
+  justify-content: center;
+}
+
+.search-container {
+  display: flex;
+  align-items: center;
+  background-color: #fff;
+  border: 1px solid #ddd;
+  border-radius: 12px;
+  padding: 5px 15px;
+  width: 600px;
+}
+
+.navbar-search {
+  flex: 1;
   border: none;
+  outline: none;
+  font-size: 1.2em;
+  padding: 8px;
 }
 
-.nav-icons .icon {
-  font-size: 1.5em;
+.search-icon {
+  width: 30px;
+  height: 30px;
   margin: 0 10px;
-  cursor: pointer;
-  transition: color 0.3s ease;
 }
 
-.nav-icons .icon:hover {
-  color: #ddd;
+.icon.right-icon {
+  margin-left: 20px;
+  width: 5%;
+  height: 5%;
+}
+
+.navbar-right .icon {
+  width: 50px;
+  height: 50px;
+  color: #007bff;
+  margin-left: 15px;
+  cursor: pointer;
+  transition: color 0.3s;
+}
+
+.navbar-right .icon:hover {
+  color: #0056b3;
 }
 
 /* Sidebar Styles */
 .sidebar {
-  width: 200px;
-  padding: 20px;
+  width: 250px;
   background-color: #f4f4f4;
-  border-right: 1px solid #ddd;
+  border-right: 2px solid #ddd;
+  padding: 20px;
 }
 
-.sidebar h3 {
-  font-size: 1.2em;
+.sidebar-title {
+  font-size: 1.5em;
+  font-weight: bold;
+  color: #007bff;
   margin-bottom: 15px;
 }
 
-.sidebar label {
-  display: block;
+.sidebar-list {
+  list-style: none;
+  padding: 0;
+}
+
+.sidebar-item {
   margin-bottom: 10px;
-  font-size: 1em;
+}
+
+.sidebar-link {
+  text-decoration: none;
   color: #333;
+  font-size: 1.1em;
 }
 
-.sidebar input {
-  margin-right: 5px;
+.sidebar-link:hover {
+  color: #007bff;
 }
 
-/* Book List Styles */
-.book-container {
+/* Main Content Styles */
+.layout {
+  display: flex;
+}
+
+.main-content {
+  flex: 1;
+  padding: 20px;
+  background-color: #f9f9f9;
+}
+
+.section-title {
+  font-size: 1.8em;
+  font-weight: bold;
+  color: #007bff;
+  margin-bottom: 20px;
+}
+
+.book-grid {
   display: flex;
   flex-wrap: wrap;
   gap: 20px;
-  padding: 20px;
   justify-content: center;
-  background-color: #f9f9f9;
-  flex-grow: 1;
 }
 
 .book-card {
-  background-color: #ffffff;
+  width: 200px;
+  background-color: #fff;
   border: 1px solid #ddd;
   border-radius: 8px;
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-  width: 300px;
-  padding: 20px;
-  text-align: left;
+  text-align: center;
+  padding: 15px;
+}
+
+.book-cover {
+  width: 100%;
+  height: auto;
+  margin-bottom: 15px;
 }
 
 .book-title {
-  font-size: 1.5em;
+  font-size: 1.2em;
   color: #333;
   margin-bottom: 10px;
 }
 
-.book-author, .book-rating, .book-year {
-  font-size: 1em;
+.book-author,
+.book-rating,
+.book-year {
+  font-size: 0.9em;
   color: #666;
-  margin: 5px 0;
 }
 
 .book-button {
   background-color: #007bff;
   color: white;
   border: none;
-  border-radius: 4px;
+  border-radius: 5px;
   padding: 10px 15px;
   cursor: pointer;
-  font-size: 1em;
-  transition: background-color 0.3s ease;
+  transition: background-color 0.3s;
 }
 
 .book-button:hover {
   background-color: #0056b3;
-}
-
-/* Main Layout Styles */
-#app {
-  display: flex;
-  flex-direction: column;
-  font-family: Arial, sans-serif;
-}
-
-.main-content {
-  display: flex;
-  flex: 1;
 }
 </style>
