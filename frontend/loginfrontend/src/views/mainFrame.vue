@@ -21,11 +21,11 @@
         <img src="@/assets/users.png" alt="Users" class="icon right-icon" />
       </div>
       <div class="navbar-right">
-        <img src="@/assets/crud.png" alt="Crud" class="icon" />
-        <img src="@/assets/dashboard.png" alt="DashBoard" class="icon" />
-        <img src="@/assets/salvar.png" alt="Salvar" class="icon" />
-        <img src="@/assets/notificacao.png" alt="Notificação" class="icon" />
-        <img src="@/assets/perfil.png" alt="Perfil" class="icon" />
+       <a href=""> <img src="@/assets/crud.png" alt="Crud" class="icon"/></a>
+       <a href=""> <img src="@/assets/dashboard.png" alt="DashBoard" class="icon" @click="gotoDashBoard()"/></a>
+       <a href=""> <img src="@/assets/salvar.png" alt="Salvar" class="icon" /></a>
+       <a href=""> <img src="@/assets/notificacao.png" alt="Notificação" class="icon" /></a>
+       <a href=""> <img src="@/assets/perfil.png" alt="Perfil" class="icon" /></a>
       </div>
     </nav>
 
@@ -99,6 +99,9 @@ export default {
   methods: {
     onSearch() {
       console.log("Busca: ", this.searchQuery);
+    },
+    gotoDashBoard(){
+      this.$router.push("/dashboard")
     },
   },
 };
