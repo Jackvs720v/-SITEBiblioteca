@@ -1,7 +1,7 @@
 <template>
   <div class="register">
     <div class="register-header">
-      <img src="@/assets/logo.png" alt="DreamBooks Logo" class="logo">
+      <img src="@/assets/logoCadastro.png" alt="DreamBooks Logo" class="logo">
       <h1>Cadastrar</h1>
     </div>
     <form @submit.prevent="cadastroUser">
@@ -97,8 +97,8 @@ export default {
 }
 
 .logo {
-  width: 80px;
-  margin-bottom: 10px;
+  width: 25%;
+  margin-bottom: 5%;
 }
 
 h1 {
