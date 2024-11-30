@@ -1,29 +1,31 @@
 <template>
-  <div class="dashboard">
-    <div class="header">
-      <h1>BookDash</h1>
-      <div class="icons">
-        <i class="fas fa-search"></i>
-        <i class="fas fa-filter"></i>
-        <i class="fas fa-user"></i>
-        <i class="fas fa-bell"></i>
+  <div class="dashboard-app">
+    <!-- Importando a Navbar -->
+    <Navbar />
+
+    <!-- Dashboard Content -->
+    <div class="dashboard">
+      <div class="content">
+        <!-- Cards da linha superior -->
+        <div class="card">
+          <h2>Livros mais Emprestados</h2>
+          <canvas id="pieChart"></canvas>
+        </div>
+        <div class="card">
+          <h2>Usuários mais Ativos</h2>
+          <canvas id="pieChartUsers"></canvas>
+        </div>
       </div>
-    </div>
-    <div class="content">
-      <div class="card">
-        <h2>Livros mais Emprestados</h2>
-        <canvas id="pieChart"></canvas>
-      </div>
-      <div class="card">
-        <h2>Usuários mais Ativos</h2>
-        <canvas id="pieChartUsers"></canvas>
-      </div>
-      <div class="card">
-        <h2>Histórico de Reservas</h2>
-        <canvas id="barChart"></canvas>
-      </div>
-      <div class="card pdf-button">
-        <button @click="generatePDF">Gerar PDF</button>
+
+      <!-- Card e botão centralizados abaixo -->
+      <div class="bottom-section">
+        <div class="card">
+          <h2>Histórico de Reservas</h2>
+          <canvas id="barChart"></canvas>
+        </div>
+        <div class="pdf-button">
+          <button @click="generatePDF">Gerar PDF</button>
+        </div>
       </div>
     </div>
   </div>
@@ -31,13 +33,13 @@
 
 <script>
 import { Chart } from "chart.js/auto";
+import Navbar from "../components/NavBarAdm.vue"; // Importando o componente Navbar
 
 export default {
+  components: {
+    Navbar, // Registrando o componente
+  },
   methods: {
-    logout() {
-      localStorage.removeItem("token");
-      this.$router.push("/login");
-    },
     generatePDF() {
       alert("PDF Gerado!");
     },
@@ -54,10 +56,6 @@ export default {
             },
           ],
         },
-        options: {
-          responsive: true,
-          maintainAspectRatio: false,
-        },
       });
 
       // Gráfico de barras para "Histórico de Reservas"
@@ -67,14 +65,18 @@ export default {
           labels: ["Vida Fora da Gangue", "O Menino Maluquinho", "O Príncipe"],
           datasets: [
             {
+              label: "Reservas",
               data: [50, 70, 40],
               backgroundColor: ["#ff6384", "#36a2eb", "#4bc0c0"],
             },
           ],
         },
         options: {
-          responsive: true,
-          maintainAspectRatio: false,
+          plugins: {
+            legend: {
+              position: "top", // Posição da legenda
+            },
+          },
         },
       });
 
@@ -90,10 +92,6 @@ export default {
             },
           ],
         },
-        options: {
-          responsive: true,
-          maintainAspectRatio: false,
-        },
       });
     },
   },
@@ -104,62 +102,71 @@ export default {
 </script>
 
 <style scoped>
-.dashboard {
-  background-color: #d1e7ff;
+.dashboard-app {
   font-family: "Arial", sans-serif;
-}
-
-.header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 10px 20px;
-  background-color: #4c84e5;
+  background-color: #133957;
   color: #fff;
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
 }
 
-.header h1 {
-  margin: 0;
+.dashboard {
+  padding: 20px;
+  flex: 1;
+  overflow-y: auto;
 }
-
-.icons i {
-  margin-left: 10px;
-  cursor: pointer;
-}
-
 .content {
   display: grid;
-  grid-template-columns: repeat(2, 1fr); /* Duas colunas */
-  gap: 20px; /* Espaçamento entre os elementos */
-  padding: 20px;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 20px;
+  max-width: 1400px;
+  margin: 0 auto;
 }
-
 .card {
-  background-color: #fff;
-  border-radius: 8px;
-  padding: 15px;
+  background-color: #f9f9f9;
+  border-radius: 12px;
+  padding: 10px;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
   text-align: center;
-  position: relative;
-  height: 250px;
+  color: #000;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  height: 260px; /* Reduzir altura */
+}
+.card h2 {
+  margin-bottom: 10px; /* Reduzir espaço do título */
+  font-size: 1.2em; /* Tamanho de fonte menor */
+}
+canvas {
+  margin: auto;
+  max-width: 90%; /* Aumentar a área dos gráficos */
+  max-height: 85%; /* Ajustar para gráficos maiores */
 }
 
-.pdf-button {
-  grid-column: span 2; /* Botão ocupa toda a largura */
-  text-align: center;
+/* Bottom Section */
+.bottom-section {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-top: 20px;
 }
-
+.bottom-section .card {
+  width: 80%; /* Diminuir a largura do card */
+  margin-bottom: 15px;
+}
 .pdf-button button {
-  background-color: #dc3545;
+  background-color: #007bff;
   color: white;
-  padding: 10px 20px;
+  padding: 12px 24px;
   border: none;
-  border-radius: 4px;
-  cursor: pointer;
+  border-radius: 6px;
   font-size: 16px;
+  cursor: pointer;
 }
-
 .pdf-button button:hover {
-  background-color: #c82333;
+  background-color: #0056b3;
 }
 </style>
