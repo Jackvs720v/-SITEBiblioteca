@@ -1,5 +1,10 @@
 <template>
+   <NavBarAdm/> 
+
   <div id="appBook">
+
+ 
+
 <!--Formulário para adicionar ou editar um livro-->
 <BookForm :bookToEdit="bookToEdit" @book-added="fetchBooks" @book-updated="fetchBooks" />
 <!--Lista de livros-->
@@ -10,6 +15,7 @@
 <script>
 import BookList from '../components/BookList.vue'
 import BookForm from '../components/BookForm.vue'
+import NavBarAdm from '@/components/NavBarAdm.vue';
 
 export default {
   data() {
@@ -20,6 +26,7 @@ export default {
   components:{
     BookList,
     BookForm,
+    NavBarAdm,
   },
   methods: {
     //Função para definir o livro que será editado
@@ -45,7 +52,7 @@ export default {
   -moz-osx-font-smoothing: grayscale;
   text-align: center;
   color: #34495e; /* Cor mais escura e suave para o texto */
-  margin-top: 60px;
+  margin-top: 20px; /* Reduzido de 60px para 20px */
   padding: 20px;
   background-color: #f4f7f9; /* Cor de fundo clara e suave */
   min-height: 100vh; /* Garante que a página tenha altura mínima */
@@ -54,6 +61,7 @@ export default {
   align-items: center;
   justify-content: center;
 }
+
 
 button {
   background-color: #3498db; /* Azul suave para o botão */

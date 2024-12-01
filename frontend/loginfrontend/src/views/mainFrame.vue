@@ -79,6 +79,7 @@ export default {
     gotoAppBook() {
       this.$router.push("/appbook");
     },
+    
   },
 };
 </script>

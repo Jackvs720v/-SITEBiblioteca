@@ -15,7 +15,7 @@
           />
           <img src="@/assets/filter.png" alt="Filtrar" class="search-icon" />
         </div>
-        <a href=""><img src="@/assets/users.png" alt="Users" class="icon right-icon" /></a>
+        <a href=""><img src="@/assets/users.png" alt="Users" class="icon right-icon" @click="gotoCrudProfile()"/></a>
       </div>
       <div class="navbar-right">
         <a href="">
@@ -28,16 +28,18 @@
           <img src="@/assets/salvar.png" alt="Salvar" class="icon" />
         </a>
         <a href="">
-          <img src="@/assets/notificacao.png" alt="Notificação" class="icon" />
+          <img src="@/assets/notificacao.png" alt="Notificação" class="icon" @click="gotoNotificacao()"/>
         </a>
         <a href="">
-          <img src="@/assets/perfil.png" alt="Perfil" class="icon" />
+          <img src="@/assets/perfil.png" alt="Perfil" class="icon" @click="gotoProfile()"/>
         </a>
       </div>
     </nav>
   </template>
   
   <script>
+
+
 
   export default {
     name: 'Navbar',
@@ -51,6 +53,18 @@ methods:{
     gotoCrud() {
         this.$router.push("/appbook")
       },  
+    gotoProfile(){
+      this.$router.push("/profile")
+      },
+    gotoCrudProfile(){
+      this.$router.push("/crudprofile")
+      },
+    gotoNotificacao(){
+      this.$router.push("/notificacao")
+      },
+    gotoFavoritar(){
+      this.$router.push("/favoritar")
+      },
 }
 };
 </script>
