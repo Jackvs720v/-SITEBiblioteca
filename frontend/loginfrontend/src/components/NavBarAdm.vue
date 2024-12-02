@@ -25,7 +25,7 @@
           <img src="@/assets/dashboard.png" alt="DashBoard" class="icon" @click="gotoDashBoard()" />
         </a>
         <a href="">
-          <img src="@/assets/salvar.png" alt="Salvar" class="icon" />
+          <img src="@/assets/salvar.png" alt="Salvar" class="icon" @click="gotoFavoritar()"/>
         </a>
         <a href="">
           <img src="@/assets/notificacao.png" alt="Notificação" class="icon" @click="gotoNotificacao()"/>
