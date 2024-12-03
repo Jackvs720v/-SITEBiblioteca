@@ -1,10 +1,8 @@
 <template>
+   
    <NavBarAdm/> 
 
   <div id="appBook">
-
- 
-
 <!--Formulário para adicionar ou editar um livro-->
 <BookForm :bookToEdit="bookToEdit" @book-added="fetchBooks" @book-updated="fetchBooks" />
 <!--Lista de livros-->

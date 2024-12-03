@@ -74,7 +74,7 @@ export default {
         });
         this.message = 'Cadastro bem-sucedido!';
         localStorage.setItem('token', response.data.token); // Armazena o token JWT no localStorage
-        this.$router.push('/mainframe'); // Redireciona para a página principal após o cadastro
+        this.$router.push('/login'); // Redireciona para a página principal após o cadastro
       } catch (error) {
         this.message = error.response && error.response.data && error.response.data.message
           ? error.response.data.message
