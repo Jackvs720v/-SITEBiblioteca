@@ -21,18 +21,28 @@
       </div>
     </form>
     <p v-if="message">{{ message }}</p>
+ 
+    <!-- Exibindo as informações do usuário -->
+    <div v-if="user">
+      <h3>Informações do Usuário</h3>
+      <p><strong>Nome:</strong> {{ user.nome }}</p>
+      <p><strong>Email:</strong> {{ user.email }}</p>
+      <p><strong>Sobre:</strong> {{ user.sobre }}</p>
+    </div>
   </div>
 </template>
-
+ 
+ 
 <script>
 import api from '../axios';
-
+ 
 export default {
   data() {
     return {
       username: '',
       password: '',
-      message: ''
+      message: '',
+      user: null, // Adicionando o campo para armazenar os dados do usuário
     };
   },
   methods: {
@@ -44,11 +54,29 @@ export default {
         });
         this.message = 'Login bem-sucedido!';
         localStorage.setItem('token', response.data.token);
+ 
+        // Chamar o método para carregar os dados do usuário após o login
+        await this.fetchUserData();
+ 
         this.$router.push('/mainFrame');
       } catch (error) {
         this.message = error.response?.data?.message || 'Erro ao fazer login.';
       }
     },
+ 
+    async fetchUserData() {
+      try {
+        const response = await api.get('/auth/user', {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem('token')}`,
+          },
+        });
+        this.user = response.data; // Preenche o campo 'user' com os dados recebidos
+      } catch (error) {
+        console.error("Erro ao buscar os dados do usuário:", error);
+      }
+    },
+ 
     forgotPassword() {
       this.message = "Redirecionando para recuperação de senha.";
     },
@@ -60,8 +88,9 @@ export default {
     }
   }
 };
+ 
 </script>
-
+ 
 <style scoped>
 /* Ajustando para ocupar a tela inteira */
 #login {
@@ -76,25 +105,25 @@ export default {
   background: linear-gradient(135deg, #1c3b4c, #274c64);
   font-family: 'Arial', sans-serif;
 }
-
+ 
 /* Centralizando o cabeçalho */
 .login-header {
   text-align: center;
   margin-bottom: 20px;
 }
-
+ 
 .logo {
   width: 50%;
   margin-bottom: 10%;
 }
-
+ 
 h1 {
   color: #ffffff;
   font-size: 36px;
   font-weight: bold;
   margin: 0;
 }
-
+ 
 /* Ajuste do formulário */
 form {
   background-color: #2a4d61;
@@ -105,11 +134,11 @@ form {
   max-width: 320px;
   text-align: center;
 }
-
+ 
 .form-group {
   margin-bottom: 20px;
 }
-
+ 
 label {
   display: block;
   color: #ffffff;
@@ -117,7 +146,7 @@ label {
   font-weight: bold;
   font-size: 14px;
 }
-
+ 
 input {
   width: 100%;
   padding: 12px;
@@ -126,20 +155,20 @@ input {
   background-color: #f5f7f9;
   transition: border-color 0.3s, box-shadow 0.3s;
 }
-
+ 
 input:focus {
   border-color: #007bff;
   box-shadow: 0 0 8px rgba(0, 123, 255, 0.4);
   outline: none;
 }
-
+ 
 /* Centralizando botões */
 .button-group {
   display: flex;
   justify-content: space-between;
   flex-wrap: wrap;
 }
-
+ 
 button {
   padding: 12px;
   background-color: #ffffff;
@@ -152,12 +181,12 @@ button {
   color: #1c3b4c;
   transition: background-color 0.3s, transform 0.3s;
 }
-
+ 
 button:hover {
   background-color: #f0f0f0;
   transform: scale(1.05);
 }
-
+ 
 /* Mensagem de erro */
 p {
   margin-top: 15px;

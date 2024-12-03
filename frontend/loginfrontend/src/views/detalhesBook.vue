@@ -30,6 +30,7 @@
               </ul>
             </div>
             <button @click="reserveBook(book)">Reservar</button>
+            <button @click="saveBook(book)">Salvar</button> <!-- Botão Salvar -->
           </div>
         </div>
       </div>
@@ -39,7 +40,6 @@
 
 <script>
     import Navbar from "../components/NavBarAdm.vue"; // Importando o componente Navbar
-
 
 export default {
   data() {
@@ -63,6 +63,7 @@ export default {
             { id: 1, user: "Seila1674", text: "É um excelente livro, simplesmente incrível !!!" },
             { id: 2, user: "Cleiton1974", text: "Simplesmente... Cinema" },
           ],
+          saved: false, // Adicionando um campo para indicar se o livro foi salvo
         },
         // Adicione mais livros aqui
       ],
@@ -85,6 +86,11 @@ export default {
     reserveBook(book) {
       console.log("Reservando o livro: " + book.title);
     },
+    saveBook(book) {
+      // Alterna o status de "salvar" do livro
+      book.saved = !book.saved;
+      console.log(book.saved ? "Livro salvo: " + book.title : "Livro removido dos salvos: " + book.title);
+    },
   },
 };
 </script>
@@ -94,8 +100,6 @@ export default {
 #detalhesBook {
   font-family: 'Arial', sans-serif;
 }
-
-
 
 /* Cartões de livro */
 .layout {
@@ -180,9 +184,11 @@ button {
   border-radius: 5px;
   cursor: pointer;
   transition: background-color 0.3s;
+  margin-top: 10px;
 }
 
 button:hover {
   background-color: #0056b3;
 }
 </style>
+    

@@ -33,15 +33,19 @@
         <label for="password">Senha:</label>
         <input v-model="password" type="password" id="password" required />
       </div>
+      <div class="form-group">
+        <label for="password">Sobre:</label>
+        <input v-model="sobre" type="text" id="sobre" required />
+      </div>
       <button type="submit">Cadastrar</button>
     </form>
     <p v-if="message">{{ message }}</p>
   </div>
 </template>
-
+ 
 <script>
 import api from '../axios'; // Importa a configuração do Axios
-
+ 
 export default {
   data() {
     return {
@@ -52,6 +56,7 @@ export default {
       numero: '',
       username: '',
       password: '',
+      sobre: '',
     };
   },
   methods: {
@@ -64,11 +69,12 @@ export default {
           bairro: this.bairro,
           numero: this.numero,
           username: this.username,
-          password: this.password, 
+          password: this.password,
+          sobre: this.sobre,
         });
         this.message = 'Cadastro bem-sucedido!';
         localStorage.setItem('token', response.data.token); // Armazena o token JWT no localStorage
-        this.$router.push('/dashboard'); // Redireciona para a página principal após o cadastro
+        this.$router.push('/mainframe'); // Redireciona para a página principal após o cadastro
       } catch (error) {
         this.message = error.response && error.response.data && error.response.data.message
           ? error.response.data.message
@@ -78,8 +84,9 @@ export default {
   }
 };
 </script>
-
+ 
 <style scoped>
+ 
 .register {
   display: flex;
   flex-direction: column;
@@ -90,23 +97,23 @@ export default {
   font-family: 'Arial', sans-serif;
   padding: 20px;
 }
-
+ 
 .register-header {
   text-align: center;
   margin-bottom: 20px;
 }
-
+ 
 .logo {
   width: 25%;
   margin-bottom: 5%;
 }
-
+ 
 h1 {
   color: white;
   font-size: 24px;
   margin: 0;
 }
-
+ 
 form {
   background-color: #2a4d61;
   padding: 20px 30px;
@@ -116,19 +123,19 @@ form {
   max-width: 350px;
   text-align: center;
 }
-
+ 
 .form-group {
   margin-bottom: 15px;
   text-align: left;
 }
-
+ 
 label {
   display: block;
   color: white;
   margin-bottom: 5px;
   font-weight: bold;
 }
-
+ 
 input {
   width: 100%;
   padding: 10px;
@@ -138,12 +145,12 @@ input {
   transition: box-shadow 0.3s;
   font-size: 14px;
 }
-
+ 
 input:focus {
   box-shadow: 0 0 5px 2px #007bff;
   outline: none;
 }
-
+ 
 button {
   padding: 12px;
   background-color: #ffffff;
@@ -156,11 +163,11 @@ button {
   transition: background-color 0.3s, transform 0.3s;
   color: #1c3b4c;
 }
-
+ 
 button:hover {
   background-color: #f0f0f0;
 }
-
+ 
 p {
   margin-top: 15px;
   color: #e74c3c;

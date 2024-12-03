@@ -33,6 +33,8 @@
 
 <script>
 import { Chart } from "chart.js/auto";
+import { jsPDF } from "jspdf";
+import html2canvas from "html2canvas";
 import Navbar from "../components/NavBarAdm.vue"; // Importando o componente Navbar
 
 export default {
@@ -41,7 +43,37 @@ export default {
   },
   methods: {
     generatePDF() {
-      alert("PDF Gerado!");
+      const doc = new jsPDF();
+      
+      // Captura do gráfico "Livros mais Emprestados"
+      html2canvas(document.getElementById("pieChart")).then((canvas) => {
+        const imgData = canvas.toDataURL("image/png");
+        doc.addImage(imgData, "PNG", 10, 20, 180, 90); // Tamanho ajustado
+        doc.text("Livros mais Emprestados", 10, 120);
+        
+        // Quebra de página após o primeiro gráfico
+        doc.addPage();
+        
+        // Captura do gráfico "Usuários mais Ativos"
+        html2canvas(document.getElementById("pieChartUsers")).then((canvas) => {
+          const imgData2 = canvas.toDataURL("image/png");
+          doc.addImage(imgData2, "PNG", 10, 20, 180, 90); // Tamanho ajustado
+          doc.text("Usuários mais Ativos", 10, 120);
+          
+          // Quebra de página após o segundo gráfico
+          doc.addPage();
+          
+          // Captura do gráfico "Histórico de Reservas"
+          html2canvas(document.getElementById("barChart")).then((canvas) => {
+            const imgData3 = canvas.toDataURL("image/png");
+            doc.addImage(imgData3, "PNG", 10, 20, 180, 90); // Tamanho ajustado
+            doc.text("Histórico de Reservas", 10, 120);
+            
+            // Salvar o PDF
+            doc.save("dashboard.pdf");
+          });
+        });
+      });
     },
     createCharts() {
       // Gráfico de pizza para "Livros mais Emprestados"
@@ -102,6 +134,25 @@ export default {
 </script>
 
 <style scoped>
+.pdf-button button {
+  background-color: #007bff;
+  color: white;
+  padding: 12px 24px;
+  border: none;
+  border-radius: 6px;
+  font-size: 16px;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
+.pdf-button button:hover {
+  background-color: #0056b3;
+}
+
+.pdf-button button:focus {
+  outline: none;
+}
+
 .dashboard-app {
   font-family: "Arial", sans-serif;
   background-color: #133957;
@@ -117,6 +168,7 @@ export default {
   flex: 1;
   overflow-y: auto;
 }
+
 .content {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
@@ -124,6 +176,7 @@ export default {
   max-width: 1400px;
   margin: 0 auto;
 }
+
 .card {
   background-color: #f9f9f9;
   border-radius: 12px;
@@ -136,10 +189,12 @@ export default {
   justify-content: space-between;
   height: 260px; /* Reduzir altura */
 }
+
 .card h2 {
   margin-bottom: 10px; /* Reduzir espaço do título */
   font-size: 1.2em; /* Tamanho de fonte menor */
 }
+
 canvas {
   margin: auto;
   max-width: 90%; /* Aumentar a área dos gráficos */
@@ -153,20 +208,9 @@ canvas {
   align-items: center;
   margin-top: 20px;
 }
+
 .bottom-section .card {
   width: 80%; /* Diminuir a largura do card */
   margin-bottom: 15px;
-}
-.pdf-button button {
-  background-color: #007bff;
-  color: white;
-  padding: 12px 24px;
-  border: none;
-  border-radius: 6px;
-  font-size: 16px;
-  cursor: pointer;
-}
-.pdf-button button:hover {
-  background-color: #0056b3;
 }
 </style>

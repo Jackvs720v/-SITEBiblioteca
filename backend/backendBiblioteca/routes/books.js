@@ -27,7 +27,7 @@ const upload = multer({
  
 // Configurar o Express para servir arquivos estáticos do diretório uploads
 router.use('/uploads', express.static(path.join(__dirname, '../uploads')));
- 
+
 // *** CRIAÇÃO (POST) ***
 router.post('/', upload, async (req, res) => {
   const { title, author, year, isbn, editora, sinopse } = req.body;
@@ -67,7 +67,7 @@ router.put('/:id', upload, async (req, res) => {
   const image = req.file ? `/uploads/${req.file.filename}` : undefined; // Atualiza apenas se houver nova imagem
  
   const updatedData = { title, author, year, isbn, image, editora, sinopse, };
-      if (image) updatedData.image = image;
+  if (image) updatedData.image = image;
  
   try {
     const updatedBook = await Book.findByIdAndUpdate(
@@ -98,7 +98,31 @@ router.delete('/:id', async (req, res) => {
     res.status(500).json({ message: 'Erro ao deletar livro', error }); // Retornamos erro, se houver
   }
 });
- 
-// Exportamos o roteador para ser usado no server.js
+
+// *** AVALIAÇÃO (POST) ***
+router.post('/:id/rating', async (req, res) => {
+  const { rating } = req.body;
+
+  if (rating < 1 || rating > 5) {
+    return res.status(400).json({ message: 'A avaliação deve ser entre 1 e 5' });
+  }
+
+  try {
+    const book = await Book.findById(req.params.id);
+    if (!book) {
+      return res.status(404).json({ message: 'Livro não encontrado' });
+    }
+
+    book.ratingSum += rating;
+    book.ratingCount += 1;
+    book.rating = book.ratingSum / book.ratingCount;
+
+    await book.save();
+
+    res.status(200).json(book);
+  } catch (error) {
+    res.status(500).json({ message: 'Erro ao adicionar avaliação', error });
+  }
+});
+
 module.exports = router;
- 
