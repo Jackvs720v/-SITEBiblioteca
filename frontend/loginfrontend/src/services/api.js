@@ -32,5 +32,6 @@ export default {
   deleteBook(id) {
     return axios.delete(`${BASE_URL}/${id}`);
   },
+  
 };
  

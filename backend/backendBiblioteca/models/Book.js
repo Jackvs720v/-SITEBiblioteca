@@ -11,7 +11,7 @@ const BookSchema = new mongoose.Schema({
     sinopse: { type: String },
     rating: { 
         type: Number, 
-        min: 1, 
+        min: 0, 
         max: 5, 
         default: 0, // Valor padrão, caso a avaliação não tenha sido atribuída
         required: false 
@@ -23,7 +23,8 @@ const BookSchema = new mongoose.Schema({
     ratingCount: { 
         type: Number, 
         default: 0, // Inicia com 0, para contar o número total de avaliações
-    }
+    },
+    available: { type: Number, default: 0 },  // Cópias disponíveis
 });
 
 // Exportando o modelo

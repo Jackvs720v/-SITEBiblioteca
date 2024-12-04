@@ -2,135 +2,130 @@
   <div id="detalhesBook">
     <!-- Navbar -->
     <Navbar />
-    <!-- Main Content - Cartões de livros -->
+    <!-- Main Content - Detalhes do Livro -->
     <div class="layout">
-      <div class="book-container">
-        <div class="book-card" v-for="book in filteredBooks" :key="book.id">
+      <div v-if="book" class="book-container">
+        <div class="book-card">
           <div class="book-header">
-            <img :src="book.cover" alt="Capa do livro" class="book-cover" />
+            <img
+              :src="book.image ? `http://localhost:3000${book.image}` : 'default-cover.jpg'"
+              alt="Capa do livro"
+              class="book-cover"
+            />
             <div class="book-info">
               <h3 class="book-title">{{ book.title }}</h3>
               <p class="book-author">Autor: {{ book.author }}</p>
-              <p class="book-pages">Páginas: {{ book.pages }}</p>
+              <p class="book-pages">Páginas: {{ book.pages || 'N/A' }}</p>
               <p class="book-isbn">ISBN: {{ book.isbn }}</p>
-              <p class="book-copies">Cópias: {{ book.copies }}</p>
-              <p class="book-available">Cópias disponíveis: {{ book.available }}</p>
-              <p class="book-synopsis">{{ book.synopsis }}</p>
-              <p class="book-publication">Publicação: {{ book.publicationYear }}</p>
+              <p class="book-copies">Cópias: {{ book.copies || 'N/A' }}</p>
+              <p class="book-available">Cópias disponíveis: {{ book.available || 'N/A' }}</p>
+              <p class="book-synopsis">{{ book.synopsis || 'Sinopse não disponível.' }}</p>
+              <p class="book-publication">Publicação: {{ book.year || 'N/A' }}</p>
+              <p class="book-publisher">Editora: {{ book.editora || 'N/A' }}</p>
             </div>
           </div>
           <div class="book-footer">
-            <div class="book-rating">Avaliação: {{ book.rating }}</div>
-            <div class="book-comments">
+            <div class="book-rating">Avaliação: {{ book.rating || 'N/A' }}</div>
+            <div class="book-comments" v-if="book.comments && book.comments.length">
               <p>Comentários ({{ book.comments.length }})</p>
               <ul>
-                <li v-for="comment in book.comments" :key="comment.id">
+                <li v-for="(comment, index) in book.comments" :key="index">
                   <strong>{{ comment.user }}:</strong> {{ comment.text }}
                 </li>
               </ul>
             </div>
-            <button @click="reserveBook(book)">Reservar</button>
-            <button @click="saveBook(book)">Salvar</button> <!-- Botão Salvar -->
+            <button @click="reserveBook()">Reservar</button>
+            <button @click="saveBook()">Salvar</button>
           </div>
         </div>
+      </div>
+      <div v-else>
+        <p>Carregando os detalhes do livro...</p>
       </div>
     </div>
   </div>
 </template>
 
 <script>
-    import Navbar from "../components/NavBarAdm.vue"; // Importando o componente Navbar
+import Navbar from "../components/NavBarAdm.vue";
+import axios from "axios";
 
 export default {
+  name: "DetalhesBook",
+  components: {
+    Navbar,
+  },
   data() {
     return {
-      searchQuery: "",
-      books: [
-        {
-          id: 1,
-          title: "Vida Fora Da Gangue",
-          author: "Pedro Stiehl",
-          rating: "⭐⭐⭐⭐⭐",
-          pages: 130,
-          isbn: "8587187449",
-          copies: 500,
-          available: 498,
-          synopsis:
-            "Quatro amigos e o jornal da escola investigam a misteriosa inutilização de livros da biblioteca.",
-          publicationYear: 2000,
-          cover: "@/assets/cover1.jpg",
-          comments: [
-            { id: 1, user: "Seila1674", text: "É um excelente livro, simplesmente incrível !!!" },
-            { id: 2, user: "Cleiton1974", text: "Simplesmente... Cinema" },
-          ],
-          saved: false, // Adicionando um campo para indicar se o livro foi salvo
-        },
-        // Adicione mais livros aqui
-      ],
+      book: null, // Dados do livro
     };
   },
-  components: {
-    Navbar, // Registrando o componente
-  },
-  computed: {
-    filteredBooks() {
-      return this.books.filter((book) =>
-        book.title.toLowerCase().includes(this.searchQuery.toLowerCase())
-      );
-    },
-  },
   methods: {
-    onSearch() {
-      console.log("Busca: ", this.searchQuery);
+    async fetchBook() {
+      const bookId = this.$route.params.id; // Captura o ID do livro da URL
+      try {
+        const response = await axios.get(`http://localhost:3000/api/books/${bookId}`);
+        this.book = response.data; // Carrega os detalhes do livro
+      } catch (error) {
+        console.error("Erro ao carregar o livro:", error.response?.data || error.message);
+      }
     },
-    reserveBook(book) {
-      console.log("Reservando o livro: " + book.title);
+    async reserveBook() {
+      const userId = localStorage.getItem("userId"); // Captura o ID do usuário logado
+      console.log(userId);  // Verifique se está retornando o ID correto
+
+      if (!userId) {
+        console.error("Usuário não está logado.");
+        return;
+      }
+      try {
+        await axios.post(`http://localhost:3000/api/reserve`, {
+          userId,
+          bookId: this.book.id,
+        });
+        alert("Livro reservado com sucesso!");
+      } catch (error) {
+        console.error("Erro ao reservar o livro:", error.response?.data || error.message);
+        alert("Falha ao reservar o livro.");
+      }
     },
-    saveBook(book) {
-      // Alterna o status de "salvar" do livro
-      book.saved = !book.saved;
-      console.log(book.saved ? "Livro salvo: " + book.title : "Livro removido dos salvos: " + book.title);
+    saveBook() {
+      console.log(`Salvando o livro: ${this.book.title}`);
+      // Adicionar lógica para salvar o livro aqui
     },
+  },
+  mounted() {
+    this.fetchBook(); // Carrega os dados do livro ao montar o componente
   },
 };
 </script>
 
-<style>
-/* Estilos gerais para o layout */
+
+<style scoped>
+/* Estilização permanece igual ou pode ser ajustada para exibir detalhes do livro */
 #detalhesBook {
   font-family: 'Arial', sans-serif;
-}
-
-/* Cartões de livro */
-.layout {
   padding: 20px;
 }
 
-.book-container {
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: space-around;
-}
-
-.book-card {
-  width: 300px;
-  background-color: #f9f9f9;
-  border-radius: 10px;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-  margin: 10px;
-  padding: 15px;
+.book-details {
   display: flex;
   flex-direction: column;
+  align-items: center;
 }
 
 .book-header {
   display: flex;
+  flex-direction: row;
+  width: 100%;
+  max-width: 800px;
+  margin-bottom: 20px;
 }
 
 .book-cover {
-  width: 80px;
-  height: 120px;
-  margin-right: 15px;
+  width: 150px;
+  height: 200px;
+  margin-right: 20px;
 }
 
 .book-info {
@@ -138,57 +133,35 @@ export default {
 }
 
 .book-title {
-  font-size: 1.6em;
+  font-size: 2em;
   font-weight: bold;
 }
 
 .book-author,
-.book-pages,
 .book-isbn,
-.book-copies,
-.book-available,
 .book-synopsis,
 .book-publication {
-  font-size: 1em;
-  margin: 5px 0;
+  font-size: 1.2em;
+  margin: 10px 0;
 }
 
 .book-footer {
-  margin-top: 15px;
+  width: 100%;
+  max-width: 800px;
   text-align: center;
-}
-
-.book-rating {
-  font-size: 1.2em;
-}
-
-.book-comments {
-  font-size: 1em;
-  margin-top: 10px;
-}
-
-.book-comments ul {
-  list-style: none;
-  padding: 0;
-}
-
-.book-comments li {
-  margin: 5px 0;
 }
 
 button {
   padding: 10px;
+  margin: 10px;
   background-color: #007bff;
   color: white;
   border: none;
   border-radius: 5px;
   cursor: pointer;
-  transition: background-color 0.3s;
-  margin-top: 10px;
 }
 
 button:hover {
   background-color: #0056b3;
 }
 </style>
-    

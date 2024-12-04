@@ -9,6 +9,7 @@ import Profile from '@/views/profile.vue';
 import CrudProfile from '@/views/crudProfile.vue';
 import Notificacao from '@/views/notificacao.vue';
 import Favoritar from '@/views/favoritar.vue';
+import ReservadoBook from '@/views/ReservadoBook.vue';
  
 const routes = [
   {
@@ -38,7 +39,7 @@ const routes = [
     component: MainFrame,
   },
   {
-    path: '/detalhesbook',
+    path: '/detalhesbook/:id',
     name: 'detalhesbook',
     component: DetalhesBook,
   },
@@ -61,6 +62,11 @@ const routes = [
     path: '/favoritar',
     name: 'favoritar',
     component: Favoritar,
+  },
+  {
+    path: '/reservado',
+    name: 'reservado',
+    component: ReservadoBook,
   },
   {
     path: '/:catchAll(.*)', // Usando a nova sintaxe para rotas coringa

@@ -1,7 +1,7 @@
 <template>
   <div id="detalhesBook">
     <!-- Navbar -->
-      <NavBar/>
+    <NavBar />
 
     <!-- Main Layout -->
     <div class="layout">
@@ -19,7 +19,7 @@
         <section class="section">
           <h2 class="section-title">Destaques da Semana</h2>
           <div class="book-grid">
-            <CardMain v-for="book in filteredBooks" :key="book.id" :book="book" />
+            <CardMain v-for="book in filteredBooks" :key="book._id" :book="book" />
           </div>
         </section>
       </main>
@@ -30,11 +30,12 @@
 <script>
 import CardMain from "../components/cardMain.vue";
 import NavBar from "../components/NavBarAdm.vue";
+import api from "../services/api"; // Importação da API
 
 export default {
   components: {
     CardMain,
-    NavBar
+    NavBar,
   },
   data() {
     return {
@@ -54,12 +55,7 @@ export default {
         "Terror",
         "Ficção Científica",
       ],
-      books: [
-        { id: 1, title: "Livro A", author: "Autor A", rating: "⭐⭐⭐⭐", year: 2022, cover: "cover1.jpg" },
-        { id: 2, title: "Livro B", author: "Autor B", rating: "⭐⭐⭐⭐⭐", year: 2021, cover: "cover2.jpg" },
-        { id: 3, title: "Livro C", author: "Autor C", rating: "⭐⭐⭐", year: 2020, cover: "cover3.jpg" },
-        { id: 4, title: "Livro D", author: "Autor D", rating: "⭐⭐⭐⭐", year: 2021, cover: "cover4.jpg" },
-      ],
+      books: [], // Inicializado vazio
     };
   },
   computed: {
@@ -70,6 +66,16 @@ export default {
     },
   },
   methods: {
+    fetchBooks() {
+      api
+        .getBooks() // Chama a API para buscar livros
+        .then((response) => {
+          this.books = response.data; // Atualiza a lista de livros
+        })
+        .catch((error) => {
+          console.error("Erro ao buscar livros:", error);
+        });
+    },
     onSearch() {
       console.log("Busca: ", this.searchQuery);
     },
@@ -79,7 +85,9 @@ export default {
     gotoAppBook() {
       this.$router.push("/appbook");
     },
-    
+  },
+  mounted() {
+    this.fetchBooks(); // Busca os livros ao carregar o componente
   },
 };
 </script>

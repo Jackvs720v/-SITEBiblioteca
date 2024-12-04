@@ -3,6 +3,9 @@ const mongoose = require('mongoose');
 const cors = require('cors');
 const multer = require('multer');
 const path = require('path');
+
+const Book = require('./models/Book'); // Ajuste conforme seu diretório
+
  
 // Inicialização do app
 const app = express();
@@ -80,4 +83,39 @@ app.post('/api/books', upload, async (req, res) => {
 // Definir a porta do servidor
 app.listen(3000, () => {
   console.log("Servidor rodando na porta 3000");
+});
+
+//Reservado Livros
+
+// Rota para obter os detalhes de um livro
+app.get('/api/books/:id', async (req, res) => {
+    try {
+        const book = await Book.findById(req.params.id);
+        if (!book) {
+            return res.status(404).json({ error: "Livro não encontrado." });
+        }
+        res.json(book);
+    } catch (error) {
+        console.error("Erro ao buscar livro:", error);
+        res.status(500).json({ error: "Erro interno do servidor." });
+    }
+});
+
+// Rota para atualizar o número de cópias disponíveis de um livro
+app.put('/api/books/:id', async (req, res) => {
+    try {
+        const { available } = req.body;
+        const book = await Book.findByIdAndUpdate(
+            req.params.id,
+            { available },
+            { new: true }
+        );
+        if (!book) {
+            return res.status(404).json({ error: "Livro não encontrado." });
+        }
+        res.json(book);
+    } catch (error) {
+        console.error("Erro ao atualizar livro:", error);
+        res.status(500).json({ error: "Erro interno do servidor." });
+    }
 });

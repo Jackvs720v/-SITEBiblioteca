@@ -25,10 +25,16 @@
           <img src="@/assets/dashboard.png" alt="DashBoard" class="icon" @click="gotoDashBoard()" />
         </a>
         <a href="">
+          <img src="@/assets/reservado.png" alt="Livros Reservados" class="icon" @click="gotoReservado()" />
+        </a>
+        <a href="">
           <img src="@/assets/salvar.png" alt="Salvar" class="icon" @click="gotoFavoritar()"/>
         </a>
         <a href="">
           <img src="@/assets/notificacao.png" alt="Notificação" class="icon" @click="gotoNotificacao()"/>
+        </a>
+        <a href="">
+          <img src="@/assets/infolibrary.png" alt="Informações" class="icon" @click="gotoDashBoard()" />
         </a>
         <a href="">
           <img src="@/assets/perfil.png" alt="Perfil" class="icon" @click="gotoProfile()"/>
@@ -64,6 +70,9 @@ methods:{
       },
     gotoFavoritar(){
       this.$router.push("/favoritar")
+      },
+    gotoReservado(){
+      this.$router.push("/reservado")
       },
 }
 };
