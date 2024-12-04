@@ -1,7 +1,5 @@
 <template>
-
-  
-  <NavBarAdm/>
+   <NavBarAdm />
 
   <div id="reservado">
     <div class="layout">
@@ -28,9 +26,12 @@
 </template>
 
 <script>
-import NavBarAdm from '../components/NavBarAdm.vue';
+import NavBarAdm from '@/components/NavBarAdm.vue';
 
 export default {
+  components:{
+  NavBarAdm,
+},
   data() {
     return {
       user: null,
