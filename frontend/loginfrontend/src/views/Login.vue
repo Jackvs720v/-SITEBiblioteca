@@ -53,7 +53,9 @@ export default {
           password: this.password,
         });
         this.message = 'Login bem-sucedido!';
-        localStorage.setItem('token', response.data.token);
+        localStorage.setItem('token', response.data.token),
+        localStorage.setItem('userId', response.data.userId);
+
  
         // Chamar o método para carregar os dados do usuário após o login
         await this.fetchUserData();

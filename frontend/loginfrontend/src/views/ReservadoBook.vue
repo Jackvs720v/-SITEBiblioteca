@@ -115,7 +115,7 @@ export default {
       }
   
       try {
-        const response = await fetch('http://localhost:3000/reservar', {
+        const response = await fetch('http://localhost:3000/api/auth/reservar', {
           method: 'POST',
           headers: {
             Authorization: `Bearer ${token}`,
