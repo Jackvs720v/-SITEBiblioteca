@@ -46,38 +46,44 @@ export default {
     };
   },
   methods: {
-    async loginUser() {
-      try {
-        const response = await api.post('/auth/login', {
-          username: this.username,
-          password: this.password,
-        });
-        this.message = 'Login bem-sucedido!';
-        localStorage.setItem('token', response.data.token),
-        localStorage.setItem('userId', response.data.userId);
+  async loginUser() {
+    try {
+      const response = await api.post('/auth/login', {
+        username: this.username,
+        password: this.password,
+      });
 
- 
-        // Chamar o método para carregar os dados do usuário após o login
-        await this.fetchUserData();
- 
-        this.$router.push('/mainFrame');
-      } catch (error) {
-        this.message = error.response?.data?.message || 'Erro ao fazer login.';
-      }
-    },
- 
-    async fetchUserData() {
-      try {
-        const response = await api.get('/auth/user', {
-          headers: {
-            Authorization: `Bearer ${localStorage.getItem('token')}`,
-          },
-        });
-        this.user = response.data; // Preenche o campo 'user' com os dados recebidos
-      } catch (error) {
-        console.error("Erro ao buscar os dados do usuário:", error);
-      }
-    },
+      // Mensagem de sucesso e armazenamento de dados no localStorage
+      this.message = 'Login bem-sucedido!';
+      localStorage.setItem('token', response.data.token);
+
+      // Chamar o método para carregar os dados do usuário após o login
+      await this.fetchUserData();
+
+      // Redirecionar para a próxima página
+      this.$router.push('/mainFrame');
+    } catch (error) {
+      this.message = error.response?.data?.message || 'Erro ao fazer login.';
+    }
+  },
+
+  async fetchUserData() {
+    try {
+      const token = localStorage.getItem('token');
+
+      // Faz a requisição para buscar os dados do usuário
+      const response = await api.get(`/auth/user`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      // Armazena os dados do usuário na variável 'user'
+      this.user = response.data;
+    } catch (error) {
+      console.error('Erro ao buscar os dados do usuário:', error);
+    }
+  },
  
     forgotPassword() {
       this.message = "Redirecionando para recuperação de senha.";

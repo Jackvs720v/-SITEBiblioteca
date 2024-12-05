@@ -34,7 +34,7 @@
           <img src="@/assets/notificacao.png" alt="Notificação" class="icon" @click="gotoNotificacao()"/>
         </a>
         <a href="">
-          <img src="@/assets/infolibrary.png" alt="Informações" class="icon" @click="gotoDashBoard()" />
+          <img src="@/assets/infolibrary.png" alt="Informações" class="icon" @click="gotoinfoLibrary()" />
         </a>
         <a href="">
           <img src="@/assets/perfil.png" alt="Perfil" class="icon" @click="gotoProfile()"/>
@@ -73,6 +73,9 @@ methods:{
       },
     gotoReservado(){
       this.$router.push("/reservado")
+      },
+    gotoinfoLibrary(){
+      this.$router.push("/infolibrary")
       },
 }
 };

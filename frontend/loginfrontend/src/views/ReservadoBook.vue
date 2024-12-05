@@ -80,7 +80,7 @@ export default {
       }
 
       try {
-        const response = await fetch('http://localhost:3000/reservados', {
+        const response = await fetch('http://localhost:3000/reservado', {
           method: 'GET',
           headers: {
             Authorization: `Bearer ${token}`  // Passando o token de autenticação no cabeçalho
@@ -115,7 +115,7 @@ export default {
       }
   
       try {
-        const response = await fetch('http://localhost:3000/api/auth/reservar', {
+        const response = await fetch('http://localhost:5000/api/auth/reservar', {
           method: 'POST',
           headers: {
             Authorization: `Bearer ${token}`,
