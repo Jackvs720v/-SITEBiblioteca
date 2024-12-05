@@ -1,10 +1,14 @@
 const express = require('express'); // Importamos o Express
 const Book = require('../models/Book'); // Importamos o modelo Book
+const User = require('../auth-api/models/user');
 const router = express.Router(); // Criamos o roteador
 const multer = require('multer'); // Importa o Multer
 const path = require('path'); // Para lidar com extensões de arquivos
 const fs = require('fs'); // Para verificar e criar diretórios
  
+const authenticateToken = require('/Users/PC/Pictures/-SITEBiblioteca/backend/auth-api/middlewares/authMiddleware')  // Importando o middleware de autenticação
+
+
 // Verificar e criar o diretório 'uploads' se não existir
 const uploadsDir = path.join(__dirname, '../uploads');
 if (!fs.existsSync(uploadsDir)) {
@@ -137,6 +141,39 @@ router.get('/:id', async (req, res) => {
     res.status(500).json({ message: 'Erro ao buscar livro', error });
   }
 });
+y
+// *** ROTA DE RESERVA (POST) ***
+router.post('/reservar', authenticateToken, async (req, res) => {
+  const { bookId } = req.body;
+  const userId = req.userId; // O userId agora está disponível graças ao middleware
 
+  try {
+    const book = await Book.findById(bookId);
+    if (!book) return res.status(404).json({ message: 'Livro não encontrado' });
+    if (book.available <= 0) return res.status(400).json({ message: 'Nenhuma cópia disponível para reserva' });
+
+    book.available -= 1;
+    await book.save();
+
+    await User.findByIdAndUpdate(userId, { $push: { reservedBooks: bookId } });
+    res.status(200).json({ message: 'Livro reservado com sucesso' });
+  } catch (error) {
+    res.status(500).json({ message: 'Erro ao reservar livro', error });
+  }
+});
+
+// *** ROTA DE LIVROS RESERVADOS (GET) ***
+router.get('/reservado', authenticateToken, async (req, res) => {
+  const userId = req.userId; // O userId agora está disponível graças ao middleware
+
+  try {
+    const user = await User.findById(userId).populate('reservedBooks');
+    if (!user) return res.status(404).json({ message: 'Usuário não encontrado' });
+
+    res.status(200).json(user.reservedBooks);
+  } catch (error) {
+    res.status(500).json({ message: 'Erro ao buscar livros reservados', error });
+  }
+});
 
 module.exports = router;

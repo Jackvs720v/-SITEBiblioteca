@@ -1,3 +1,33 @@
+async fetchUserData() {
+  const token = localStorage.getItem('token');
+  if (!token) {
+    this.message = 'Token não encontrado. Faça login novamente.';
+    return;
+  }
+
+  try {
+    const response = await api.get('/auth/user', {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+    this.user = response.data;
+  } catch (error) {
+    console.error('Erro ao buscar os dados do usuário:', error);
+    this.message = 'Erro ao carregar dados do usuário.';
+  }
+}
+Armazenamento de Dados no localStorage: Verifique se o userId é realmente necessário para ser armazenado. Em muitos casos, o token pode ser suficiente para autenticar a sessão e recuperar os dados do usuário. Caso contrário, ao invés de armazenar o userId diretamente, você pode enviar o token apenas.
+
+Usabilidade e Redirecionamento em Caso de Falha de Login: Quando o login falha, seria útil redirecionar o usuário para uma página de erro ou exibir um alerta mais visível. Isso pode ser feito com mais clareza do que simplesmente exibir uma mensagem de erro dentro da página de login.
+
+Botão de "Cadastro" e "Crud": Quando o botão de "Cadastro" ou "Crud" é clicado, o redirecionamento funciona bem. Certifique-se de que essas rotas (/cadastro e /appbook) existam em seu roteador Vue e que estejam configuradas corretamente para que o usuário possa ser redirecionado.
+
+Ajustes na Aparência do Formulário e Feedback: Seu formulário e os estilos parecem bem definidos, mas considere adicionar um carregamento (loading) ou uma animação de espera ao realizar a solicitação de login, para melhorar a experiência do usuário.
+
+Código Final Ajustado:
+vue
+Copy code
 <template>
   <div id="login">
     <div class="login-header">
@@ -32,7 +62,6 @@
   </div>
 </template>
  
- 
 <script>
 import api from '../axios';
  
@@ -46,57 +75,61 @@ export default {
     };
   },
   methods: {
-  async loginUser() {
-    try {
-      const response = await api.post('/auth/login', {
-        username: this.username,
-        password: this.password,
-      });
+    async loginUser() {
+      try {
+        const response = await api.post('/auth/login', {
+          username: this.username,
+          password: this.password,
+        });
 
-      // Mensagem de sucesso e armazenamento de dados no localStorage
-      this.message = 'Login bem-sucedido!';
-      localStorage.setItem('token', response.data.token);
+        // Armazenando token no localStorage
+        localStorage.setItem('token', response.data.token);
 
-      // Chamar o método para carregar os dados do usuário após o login
-      await this.fetchUserData();
+        this.message = 'Login bem-sucedido!';
+        
+        // Carregar dados do usuário
+        await this.fetchUserData();
 
-      // Redirecionar para a próxima página
-      this.$router.push('/mainFrame');
-    } catch (error) {
-      this.message = error.response?.data?.message || 'Erro ao fazer login.';
-    }
-  },
+        // Redirecionar para a próxima página
+        this.$router.push('/mainFrame');
+      } catch (error) {
+        this.message = error.response?.data?.message || 'Erro ao fazer login. Tente novamente.';
+      }
+    },
 
-  async fetchUserData() {
-    try {
+    async fetchUserData() {
       const token = localStorage.getItem('token');
+      if (!token) {
+        this.message = 'Token não encontrado. Faça login novamente.';
+        return;
+      }
 
-      // Faz a requisição para buscar os dados do usuário
-      const response = await api.get(`/auth/user`, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
+      try {
+        const response = await api.get('/auth/user', {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+        this.user = response.data;
+      } catch (error) {
+        console.error('Erro ao buscar os dados do usuário:', error);
+        this.message = 'Erro ao carregar dados do usuário.';
+      }
+    },
 
-      // Armazena os dados do usuário na variável 'user'
-      this.user = response.data;
-    } catch (error) {
-      console.error('Erro ao buscar os dados do usuário:', error);
-    }
-  },
- 
     forgotPassword() {
       this.message = "Redirecionando para recuperação de senha.";
     },
+
     goToCadastro() {
       this.$router.push('/cadastro');
     },
+
     goToCrud() {
       this.$router.push('/appbook');
     }
   }
 };
- 
 </script>
  
 <style scoped>
@@ -194,7 +227,7 @@ button:hover {
   background-color: #f0f0f0;
   transform: scale(1.05);
 }
- 
+  
 /* Mensagem de erro */
 p {
   margin-top: 15px;

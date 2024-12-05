@@ -3,119 +3,155 @@ const mongoose = require('mongoose');
 const cors = require('cors');
 const multer = require('multer');
 const path = require('path');
+const authenticateToken = require('/Users/PC/Pictures/-SITEBiblioteca/backend/auth-api/middlewares/authMiddleware')  // Importando o middleware de autenticação
 
-const Book = require('./models/Book'); // Ajuste conforme seu diretório
+const Book = require('./models/Book'); // Modelo de Livro
+const User = require('/Users/PC/Pictures/-SITEBiblioteca/backend/auth-api/models/user') // Modelo de Usuário (corrigido o caminho)
 
- 
-// Inicialização do app
 const app = express();
- 
+
 // Configuração do CORS
 app.use(cors());
- 
-// Para fazer o parsing do corpo das requisições em JSON
+
+// Parsing de requisições em JSON
 app.use(express.json());
- 
+
 // Configuração do Multer para upload de imagens
 const upload = multer({
-  dest: 'uploads/', // Diretório onde as imagens serão salvas localmente
+  dest: 'uploads/',
   limits: { fileSize: 5 * 1024 * 1024 }, // Limite de 5MB
   fileFilter(req, file, cb) {
     const ext = path.extname(file.originalname).toLowerCase();
-    if (ext === '.jpg' || ext === '.jpeg' || ext === '.png') {
-      cb(null, true); // Aceita o arquivo
+    if (['.jpg', '.jpeg', '.png'].includes(ext)) {
+      cb(null, true);
     } else {
       cb(new Error('Apenas arquivos JPG, JPEG ou PNG são permitidos!'), false);
     }
   },
-}).single('image'); // Espera um campo chamado "image"
- 
-// Servir arquivos estáticos da pasta 'uploads' (para acessar as imagens via URL)
+}).single('image');
+
+// Servir arquivos estáticos da pasta 'uploads'
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
- 
+
 // Conexão ao MongoDB
-mongoose.connect('mongodb+srv://edu22052016:v8MKsYY9WuJEKm55@clustereduardo.qkzgc.mongodb.net/library', { // Link que usamos para conectar no bando de dados MongoDB
-      useNewUrlParser: true,
-      useUnifiedTopology: true,
-    }
-  )
-  .then(() => console.log("MongoDB conectado"))
-  .catch((err) => console.error("Erro ao conectar ao MongoDB:", err));
- 
-// Importação das rotas
-const booksRoutes = require('./routes/books');
- 
-// Usar as rotas de livros com prefixo "/api/books"
-app.use('/api/books', booksRoutes);
- 
-// Criar um endpoint para upload de livro (com imagem)
+mongoose
+  .connect('mongodb+srv://edu22052016:v8MKsYY9WuJEKm55@clustereduardo.qkzgc.mongodb.net/library', {
+    useNewUrlParser: true,
+    useUnifiedTopology: true,
+  })
+  .then(() => console.log('MongoDB conectado'))
+  .catch((err) => console.error('Erro ao conectar ao MongoDB:', err));
+
+// Rota para criar um livro com upload de imagem
 app.post('/api/books', upload, async (req, res) => {
+  const { title, author, year, isbn, editora, sinopse } = req.body;
+  const image = req.file ? `/uploads/${req.file.filename}` : '';
+
   try {
-    // Verificando se a imagem foi recebida
-    if (!req.file) {
-      return res.status(400).json({ message: 'Imagem é obrigatória!' });
-    }
- 
-    const { title, author, year, isbn, publisher, synopsis } = req.body;
-    const image = req.file ? `/uploads/${req.file.filename}` : ''; // Caminho relativo da imagem
- 
-    // Criar o objeto do livro
     const newBook = new Book({
       title,
       author,
       year,
       isbn,
-      image, // Salva o caminho da imagem
       editora,
       sinopse,
+      image,
+      available: 1, // Número padrão de cópias disponíveis
     });
- 
-    // Salvar o livro no banco de dados
+
     await newBook.save();
-    res.status(201).json(newBook); // Retorna o livro criado
- 
+    res.status(201).json(newBook);
   } catch (error) {
-    console.error(error);
+    console.error('Erro ao criar livro:', error);
     res.status(500).json({ message: 'Erro ao criar livro', error });
   }
 });
- 
-// Definir a porta do servidor
-app.listen(3000, () => {
-  console.log("Servidor rodando na porta 3000");
+
+// Rota para listar todos os livros
+app.get('/api/books', async (req, res) => {
+  try {
+    const books = await Book.find();
+    res.status(200).json(books);
+  } catch (error) {
+    console.error('Erro ao buscar livros:', error);
+    res.status(500).json({ error: 'Erro ao buscar livros' });
+  }
 });
 
-//Reservado Livros
-
-// Rota para obter os detalhes de um livro
+// Rota para obter detalhes de um livro
 app.get('/api/books/:id', async (req, res) => {
-    try {
-        const book = await Book.findById(req.params.id);
-        if (!book) {
-            return res.status(404).json({ error: "Livro não encontrado." });
-        }
-        res.json(book);
-    } catch (error) {
-        console.error("Erro ao buscar livro:", error);
-        res.status(500).json({ error: "Erro interno do servidor." });
-    }
+  try {
+    const book = await Book.findById(req.params.id);
+    if (!book) return res.status(404).json({ error: 'Livro não encontrado.' });
+    res.status(200).json(book);
+  } catch (error) {
+    console.error('Erro ao buscar livro:', error);
+    res.status(500).json({ error: 'Erro interno do servidor.' });
+  }
 });
 
-// Rota para atualizar o número de cópias disponíveis de um livro
+// Rota para atualizar livro
 app.put('/api/books/:id', async (req, res) => {
-    try {
-        const { available } = req.body;
-        const book = await Book.findByIdAndUpdate(
-            req.params.id,
-            { available },
-            { new: true }
-        );
-        if (!book) {
-            return res.status(404).json({ error: "Livro não encontrado." });
-        }
-        res.json(book);
-    } catch (error) {
-        console.error("Erro ao atualizar livro:", error);
-        res.status(500).json({ error: "Erro interno do servidor." });
-    }
+  const allowedUpdates = ['title', 'author', 'year', 'isbn', 'editora', 'sinopse', 'available'];
+  const updates = Object.keys(req.body);
+  const isValidUpdate = updates.every((key) => allowedUpdates.includes(key));
+
+  if (!isValidUpdate) {
+    return res.status(400).json({ error: 'Atualizações inválidas' });
+  }
+
+  try {
+    const book = await Book.findByIdAndUpdate(req.params.id, req.body, { new: true });
+    if (!book) return res.status(404).json({ error: 'Livro não encontrado.' });
+    res.status(200).json(book);
+  } catch (error) {
+    console.error('Erro ao atualizar livro:', error);
+    res.status(500).json({ error: 'Erro interno do servidor.' });
+  }
 });
+
+// Rota para reservar um livro
+app.post('/api/reservar', async (req, res) => {
+  const { bookId } = req.body;
+  const userId = req.userId; // O userId agora está disponível graças ao middleware
+
+  if (!bookId || !userId) {
+    return res.status(400).json({ error: 'Parâmetros obrigatórios faltando.' });
+  }
+
+  try {
+    const book = await Book.findById(bookId);
+    if (!book) return res.status(404).json({ error: 'Livro não encontrado.' });
+
+    if (book.available <= 0) {
+      return res.status(400).json({ error: 'Nenhuma cópia disponível para reserva.' });
+    }
+
+    book.available -= 1;
+    await book.save();
+    await User.findByIdAndUpdate(userId, { $push: { reservedBooks: bookId } });
+
+    res.status(200).json({ message: 'Livro reservado com sucesso!' });
+  } catch (error) {
+    console.error('Erro ao reservar livro:', error);
+    res.status(500).json({ error: 'Erro interno do servidor.' });
+  }
+});
+
+// Rota para buscar livros reservados por usuário
+app.get('/api/reservado', async (req, res) => {
+  const userId = req.userId; // O userId agora está disponível graças ao middleware
+
+  try {
+    const user = await User.findById(userId).populate('reservedBooks');
+    if (!user) return res.status(404).json({ error: 'Usuário não encontrado.' });
+
+    res.status(200).json(user.reservedBooks);
+  } catch (error) {
+    console.error('Erro ao buscar livros reservados:', error);
+    res.status(500).json({ error: 'Erro interno do servidor.' });
+  }
+});
+
+// Inicializar o servidor
+app.listen(3000, () => console.log('Servidor rodando na porta 3000'));

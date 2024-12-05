@@ -42,6 +42,9 @@
       <div v-else>
         <p>Carregando os detalhes do livro...</p>
       </div>
+      <div v-if="errorMessage" class="error-message">
+        <p>{{ errorMessage }}</p>
+      </div>
     </div>
   </div>
 </template>
@@ -58,6 +61,7 @@ export default {
   data() {
     return {
       book: null, // Dados do livro
+      errorMessage: '', // Mensagem de erro
     };
   },
   methods: {
@@ -66,22 +70,28 @@ export default {
       try {
         const response = await axios.get(`http://localhost:3000/api/books/${bookId}`);
         this.book = response.data; // Carrega os detalhes do livro
+        this.errorMessage = ''; // Limpa a mensagem de erro, caso o livro seja carregado
       } catch (error) {
         console.error("Erro ao carregar o livro:", error.response?.data || error.message);
+        this.book = null; // Define o valor como null para exibir "Carregando"
+        this.errorMessage = "Erro ao carregar os detalhes do livro. Tente novamente mais tarde."; // Mensagem de erro
       }
     },
     async reserveBook() {
-      const userId = localStorage.getItem("userId"); // Captura o ID do usuário logado
-      console.log(userId);  // Verifique se está retornando o ID correto
+      const userId = localStorage.getItem('userId'); // Correto: recuperando o userId da chave certa
+      const token = localStorage.getItem('token'); // Verificando o token também
 
-      if (!userId) {
+      if (!userId || !token) {
         console.error("Usuário não está logado.");
+        alert("Você precisa estar logado para reservar um livro.");
+        this.$router.push('/login'); // Redireciona para a página de login
         return;
       }
+
       try {
-        await axios.post(`http://localhost:3000/api/reserve`, {
+        await axios.post(`http://localhost:5000/api/reserve`, {
           userId,
-          bookId: this.book.id,
+          bookId: this.book._id, // Usando _id para o identificador do livro
         });
         alert("Livro reservado com sucesso!");
       } catch (error) {
@@ -89,9 +99,30 @@ export default {
         alert("Falha ao reservar o livro.");
       }
     },
-    saveBook() {
+
+    async saveBook() {
+      const userId = localStorage.getItem('userId'); // Correção: Recuperando userId da chave certa
+      const token = localStorage.getItem('token'); // Verificando o token
+
+      if (!userId || !token) {
+        console.error("Usuário não está logado.");
+        alert("Você precisa estar logado para salvar um livro.");
+        this.$router.push('/login'); // Redireciona para a página de login
+        return;
+      }
+
       console.log(`Salvando o livro: ${this.book.title}`);
-      // Adicionar lógica para salvar o livro aqui
+
+      try {
+        await axios.post('http://localhost:5000/api/save', {
+          userId,
+          bookId: this.book._id
+        });
+        alert("Livro salvo com sucesso!");
+      } catch (error) {
+        console.error("Erro ao salvar livro:", error.response?.data || error.message);
+        alert("Falha ao salvar o livro.");
+      }
     },
   },
   mounted() {
@@ -99,7 +130,6 @@ export default {
   },
 };
 </script>
-
 
 <style scoped>
 /* Estilização permanece igual ou pode ser ajustada para exibir detalhes do livro */
@@ -164,4 +194,30 @@ button {
 button:hover {
   background-color: #0056b3;
 }
+
+.error-message {
+  color: red;
+  font-size: 1.2em;
+  text-align: center;
+  margin-top: 20px;
+}
+
+@media (max-width: 768px) {
+  .book-header {
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .book-cover {
+    width: 120px;
+    height: 160px;
+    margin-right: 0;
+    margin-bottom: 10px;
+  }
+
+  .book-info {
+    text-align: center;
+  }
+}
 </style>
+  
