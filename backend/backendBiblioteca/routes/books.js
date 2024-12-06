@@ -150,7 +150,7 @@ router.get('/:id', async (req, res) => {
 //RESERVAR
 
 // Rota para reservar um livro
-router.post('/reservar', mid, async (req, res) => {
+router.post('api/reservar', mid, async (req, res) => {
   const { bookId } = req.body;
   const userId = req.userId; // O userId agora está disponível graças ao middleware
 
@@ -162,10 +162,10 @@ router.post('/reservar', mid, async (req, res) => {
     const book = await Book.findById(bookId);
     if (!book) return res.status(404).json({ error: 'Livro não encontrado.' });
 
-    if (book.available <= 0) {
-      return res.status(400).json({ error: 'Nenhuma cópia disponível para reserva.' });
-    }
-
+    // if (book.available <= 0) {
+    //   return res.status(400).json({ error: 'Nenhuma cópia disponível para reserva.' });
+    // }
+    
     book.available -= 1;
     await book.save();
     await User.findByIdAndUpdate(userId, { $push: { reservedBooks: bookId } });
@@ -178,7 +178,7 @@ router.post('/reservar', mid, async (req, res) => {
 });
 
 // Rota para buscar livros reservados por usuário
-router.get('/reservado', mid, async (req, res) => {
+router.get('api/reservado', mid, async (req, res) => {
   const userId = req.userId; // O userId agora está disponível graças ao middleware
 
   try {

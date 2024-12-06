@@ -5,7 +5,8 @@ const multer = require('multer');
 const path = require('path');
 
 const Book = require('./models/Book'); // Modelo de Livro
-
+const User = require('/Users/PC/Pictures/-SITEBiblioteca/backend/auth-api/models/user'); // Modelo de Usuário (corrigido o caminho)
+              
 const app = express();
 
 // Configuração do CORS
@@ -129,27 +130,34 @@ app.delete('/api/books/:id', async (req, res) => {
 // Rota para reservar um livro
 app.post('/api/reservar', async (req, res) => {
   const { bookId } = req.body;
-  const userId = req.userId; // O userId agora está disponível graças ao middleware
+  const userId = req.userId;
 
   if (!bookId || !userId) {
     return res.status(400).json({ error: 'Parâmetros obrigatórios faltando.' });
   }
 
   try {
+    console.log("Tentando reservar livro...");
     const book = await Book.findById(bookId);
-    if (!book) return res.status(404).json({ error: 'Livro não encontrado.' });
+    if (!book) {
+      console.log("Livro não encontrado.");
+      return res.status(404).json({ error: 'Livro não encontrado.' });
+    }
 
     if (book.available <= 0) {
+      console.log("Nenhuma cópia disponível para reserva.");
       return res.status(400).json({ error: 'Nenhuma cópia disponível para reserva.' });
     }
 
+    // Atualizar a disponibilidade do livro e salvar a reserva
     book.available -= 1;
     await book.save();
     await User.findByIdAndUpdate(userId, { $push: { reservedBooks: bookId } });
 
+    console.log("Livro reservado com sucesso!");
     res.status(200).json({ message: 'Livro reservado com sucesso!' });
   } catch (error) {
-    console.error('Erro ao reservar livro:', error);
+    console.error('Erro ao reservar livro:', error); // Log do erro no backend
     res.status(500).json({ error: 'Erro interno do servidor.' });
   }
 });

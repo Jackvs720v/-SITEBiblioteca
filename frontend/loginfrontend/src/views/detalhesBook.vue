@@ -19,7 +19,7 @@
               <p class="book-isbn">ISBN: {{ book.isbn }}</p>
               <p class="book-copies">Cópias: {{ book.copies || 'N/A' }}</p>
               <p class="book-available">Cópias disponíveis: {{ book.available || 'N/A' }}</p>
-              <p class="book-synopsis">{{ book.synopsis || 'Sinopse não disponível.' }}</p>
+              <p class="book-synopsis">{{ book.sinopse || 'Sinopse não disponível.' }}</p>
               <p class="book-publication">Publicação: {{ book.year || 'N/A' }}</p>
               <p class="book-publisher">Editora: {{ book.editora || 'N/A' }}</p>
             </div>
@@ -114,7 +114,7 @@ export default {
       console.log(`Salvando o livro: ${this.book.title}`);
 
       try {
-        await axios.post('http://localhost:5000/api/save', {
+        await axios.post('http://localhost:3000/api/save', {
           userId,
           bookId: this.book._id
         });

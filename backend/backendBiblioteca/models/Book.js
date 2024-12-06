@@ -9,6 +9,8 @@ const BookSchema = new mongoose.Schema({
     image: { type: String },
     editora: { type: String },
     sinopse: { type: String },
+    paginas: { type: String },
+    copias: { type: String },
     rating: { 
         type: Number, 
         min: 0, 
