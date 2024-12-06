@@ -1,33 +1,4 @@
-async fetchUserData() {
-  const token = localStorage.getItem('token');
-  if (!token) {
-    this.message = 'Token não encontrado. Faça login novamente.';
-    return;
-  }
 
-  try {
-    const response = await api.get('/auth/user', {
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    });
-    this.user = response.data;
-  } catch (error) {
-    console.error('Erro ao buscar os dados do usuário:', error);
-    this.message = 'Erro ao carregar dados do usuário.';
-  }
-}
-Armazenamento de Dados no localStorage: Verifique se o userId é realmente necessário para ser armazenado. Em muitos casos, o token pode ser suficiente para autenticar a sessão e recuperar os dados do usuário. Caso contrário, ao invés de armazenar o userId diretamente, você pode enviar o token apenas.
-
-Usabilidade e Redirecionamento em Caso de Falha de Login: Quando o login falha, seria útil redirecionar o usuário para uma página de erro ou exibir um alerta mais visível. Isso pode ser feito com mais clareza do que simplesmente exibir uma mensagem de erro dentro da página de login.
-
-Botão de "Cadastro" e "Crud": Quando o botão de "Cadastro" ou "Crud" é clicado, o redirecionamento funciona bem. Certifique-se de que essas rotas (/cadastro e /appbook) existam em seu roteador Vue e que estejam configuradas corretamente para que o usuário possa ser redirecionado.
-
-Ajustes na Aparência do Formulário e Feedback: Seu formulário e os estilos parecem bem definidos, mas considere adicionar um carregamento (loading) ou uma animação de espera ao realizar a solicitação de login, para melhorar a experiência do usuário.
-
-Código Final Ajustado:
-vue
-Copy code
 <template>
   <div id="login">
     <div class="login-header">
@@ -84,7 +55,7 @@ export default {
 
         // Armazenando token no localStorage
         localStorage.setItem('token', response.data.token);
-
+        localStorage.setItem('userId', response.data.userId)
         this.message = 'Login bem-sucedido!';
         
         // Carregar dados do usuário

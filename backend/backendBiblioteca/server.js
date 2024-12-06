@@ -3,10 +3,8 @@ const mongoose = require('mongoose');
 const cors = require('cors');
 const multer = require('multer');
 const path = require('path');
-const authenticateToken = require('/Users/PC/Pictures/-SITEBiblioteca/backend/auth-api/middlewares/authMiddleware')  // Importando o middleware de autenticação
 
 const Book = require('./models/Book'); // Modelo de Livro
-const User = require('/Users/PC/Pictures/-SITEBiblioteca/backend/auth-api/models/user') // Modelo de Usuário (corrigido o caminho)
 
 const app = express();
 
@@ -23,7 +21,7 @@ const upload = multer({
   fileFilter(req, file, cb) {
     const ext = path.extname(file.originalname).toLowerCase();
     if (['.jpg', '.jpeg', '.png'].includes(ext)) {
-      cb(null, true);
+      cb(null, true); // Aceita o arquivo
     } else {
       cb(new Error('Apenas arquivos JPG, JPEG ou PNG são permitidos!'), false);
     }
@@ -90,23 +88,41 @@ app.get('/api/books/:id', async (req, res) => {
   }
 });
 
-// Rota para atualizar livro
-app.put('/api/books/:id', async (req, res) => {
-  const allowedUpdates = ['title', 'author', 'year', 'isbn', 'editora', 'sinopse', 'available'];
-  const updates = Object.keys(req.body);
-  const isValidUpdate = updates.every((key) => allowedUpdates.includes(key));
+// Rota para atualizar livro (com upload de imagem opcional)
+app.put('/api/books/:id', upload, async (req, res) => {
+  const { title, author, year, isbn, editora, sinopse } = req.body;
+  const image = req.file ? `/uploads/${req.file.filename}` : undefined; // Atualiza apenas se houver nova imagem
 
-  if (!isValidUpdate) {
-    return res.status(400).json({ error: 'Atualizações inválidas' });
-  }
+  const updatedData = { title, author, year, isbn, editora, sinopse };
+
+  if (image) updatedData.image = image; // Atualiza a imagem se fornecida
 
   try {
-    const book = await Book.findByIdAndUpdate(req.params.id, req.body, { new: true });
-    if (!book) return res.status(404).json({ error: 'Livro não encontrado.' });
-    res.status(200).json(book);
+    const updatedBook = await Book.findByIdAndUpdate(
+      req.params.id, // ID do livro a ser atualizado
+      updatedData, // Novos dados para o livro
+      { new: true } // Retorna o livro atualizado
+    );
+
+    if (!updatedBook) return res.status(404).json({ error: 'Livro não encontrado.' });
+
+    res.status(200).json(updatedBook); // Retorna o livro atualizado
   } catch (error) {
     console.error('Erro ao atualizar livro:', error);
     res.status(500).json({ error: 'Erro interno do servidor.' });
+  }
+});
+
+// Rota para excluir livro
+app.delete('/api/books/:id', async (req, res) => {
+  try {
+    const deletedBook = await Book.findByIdAndDelete(req.params.id); // Deleta o livro pelo ID
+    if (!deletedBook) return res.status(404).json({ error: 'Livro não encontrado.' });
+
+    res.status(200).json({ message: 'Livro deletado com sucesso' });
+  } catch (error) {
+    console.error('Erro ao deletar livro:', error);
+    res.status(500).json({ error: 'Erro ao deletar livro' });
   }
 });
 
@@ -155,3 +171,4 @@ app.get('/api/reservado', async (req, res) => {
 
 // Inicializar o servidor
 app.listen(3000, () => console.log('Servidor rodando na porta 3000'));
+  

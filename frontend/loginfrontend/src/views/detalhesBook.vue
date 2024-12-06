@@ -89,7 +89,7 @@ export default {
       }
 
       try {
-        await axios.post(`http://localhost:5000/api/reserve`, {
+        await axios.post(`http://localhost:3000/api/reservar`, {
           userId,
           bookId: this.book._id, // Usando _id para o identificador do livro
         });

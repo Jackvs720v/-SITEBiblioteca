@@ -12,7 +12,7 @@ const authRoutes = require('./routes/authRoutes'); // Importa as rotas de autent
  
 app.use(cors({
     origin: 'http://localhost:8080', // Permite requisições apenas do seu frontend
-    methods: ['GET', 'POST', 'PUT', 'GET'], // Adicione outros métodos se necessário
+    methods: ['GET', 'POST', 'PUT', 'DELETE'], // Adicione outros métodos se necessário
 }));
  
 app.use(express.json()); // Middleware para processar requisições JSON
