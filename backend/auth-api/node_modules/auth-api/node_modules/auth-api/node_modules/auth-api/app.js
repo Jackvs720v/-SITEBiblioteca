@@ -5,8 +5,6 @@ const mongoose = require('mongoose'); // Importa o Mongoose para conectar e inte
 const cors = require('cors'); // Importa o middleware CORS
 const app = express(); // Inicializa uma aplicação Express
 
-
-
 app.use(cors());
 const authRoutes = require('./routes/authRoutes'); // Importa as rotas de autenticação (ainda a serem criadas)
  

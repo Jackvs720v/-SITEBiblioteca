@@ -17,10 +17,10 @@
               <p class="book-author">Autor: {{ book.author }}</p>
               <p class="book-pages">Páginas: {{ book.pages || 'N/A' }}</p>
               <p class="book-isbn">ISBN: {{ book.isbn }}</p>
-              <p class="book-copies">Cópias: {{ book.copies || 'N/A' }}</p>
-              <p class="book-available">Cópias disponíveis: {{ book.available || 'N/A' }}</p>
+              <p class="book-copies">Cópias Alugadas: {{ book.copia || '2' }}</p>
+              <p class="book-available">Cópias disponíveis: {{ book.available || '2' }}</p>
               <p class="book-synopsis">{{ book.sinopse || 'Sinopse não disponível.' }}</p>
-              <p class="book-publication">Publicação: {{ book.year || 'N/A' }}</p>
+              <p class="book-publication">Ano de publicação: {{ book.year || 'N/A' }}</p>
               <p class="book-publisher">Editora: {{ book.editora || 'N/A' }}</p>
             </div>
           </div>
@@ -53,6 +53,9 @@
 import Navbar from "../components/NavBarAdm.vue";
 import axios from "axios";
 
+// Defina a base_url do axios para a API da porta 3000
+axios.defaults.baseURL = 'http://localhost:3000';
+
 export default {
   name: "DetalhesBook",
   components: {
@@ -68,7 +71,7 @@ export default {
     async fetchBook() {
       const bookId = this.$route.params.id; // Captura o ID do livro da URL
       try {
-        const response = await axios.get(`http://localhost:3000/api/books/${bookId}`);
+        const response = await axios.get(`/api/books/${bookId}`);
         this.book = response.data; // Carrega os detalhes do livro
         this.errorMessage = ''; // Limpa a mensagem de erro, caso o livro seja carregado
       } catch (error) {
@@ -78,27 +81,41 @@ export default {
       }
     },
     async reserveBook() {
-      const userId = localStorage.getItem('userId'); // Correto: recuperando o userId da chave certa
-      const token = localStorage.getItem('token'); // Verificando o token também
+  const token = localStorage.getItem('token'); 
+  const userId = localStorage.getItem('userId'); 
 
-      if (!userId || !token) {
-        console.error("Usuário não está logado.");
-        alert("Você precisa estar logado para reservar um livro.");
-        this.$router.push('/login'); // Redireciona para a página de login
-        return;
-      }
+  if (!token || !userId) {
+    alert("Você precisa estar logado para reservar um livro.");
+    this.$router.push('/login');
+    return;
+  }
 
-      try {
-        await axios.post(`http://localhost:3000/api/reservar`, {
-          userId,
-          bookId: this.book._id, // Usando _id para o identificador do livro
-        });
-        alert("Livro reservado com sucesso!");
-      } catch (error) {
-        console.error("Erro ao reservar o livro:", error.response?.data || error.message);
-        alert("Falha ao reservar o livro.");
-      }
-    },
+  try {
+    console.log("Iniciando a reserva...");
+    console.log("Token:", token);
+    console.log("UserID:", userId);
+    console.log("BookID:", this.book?._id);
+
+    this.errorMessage = "Processando sua reserva...";
+
+    const response = await axios.post(
+      '/api/books/reservar',
+      {
+        bookId: this.book?._id, 
+        userId: userId,       
+      },
+      { headers: { Authorization: `Bearer ${token}` } } 
+    );
+
+    console.log("Reserva bem-sucedida:", response.data);
+    await this.fetchBook(); 
+    alert(response.data.message); 
+    this.errorMessage = ""; 
+  } catch (error) {
+    console.error("Erro ao reservar o livro:", error.response?.data || error.message);
+    this.errorMessage = error.response?.data?.error || "Erro ao reservar o livro. Tente novamente.";
+  }
+},
 
     async saveBook() {
       const userId = localStorage.getItem('userId'); // Correção: Recuperando userId da chave certa
@@ -114,7 +131,7 @@ export default {
       console.log(`Salvando o livro: ${this.book.title}`);
 
       try {
-        await axios.post('http://localhost:3000/api/save', {
+        await axios.post('/api/save', {
           userId,
           bookId: this.book._id
         });

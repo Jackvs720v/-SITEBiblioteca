@@ -5,7 +5,6 @@ exports.verifyToken = (req, res, next) => {
   if (!authHeader) {
       return res.status(401).json({ error: 'Acesso negado. Token não fornecido.' });
   }
-
   const token = authHeader.startsWith('Bearer') ? authHeader.split(' ')[1] : authHeader;
 
   try {

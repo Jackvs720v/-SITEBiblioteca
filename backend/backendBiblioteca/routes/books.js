@@ -6,7 +6,7 @@ const multer = require('multer'); // Importa o Multer
 const path = require('path'); // Para lidar com extensões de arquivos
 const fs = require('fs'); // Para verificar e criar diretórios
 
-const { verifyToken } = require('../middlewares/authMiddleware'); // Importa o middleware
+const { verifyToken } = require('/Users/PC/Pictures/-SITEBiblioteca/backend/auth-api/middlewares/authMiddleware'); // Importa o middleware
 
 // Verificar e criar o diretório 'uploads' se não existir
 const uploadsDir = path.join(__dirname, '../uploads');
@@ -149,29 +149,40 @@ router.get('/:id', async (req, res) => {
 
 //RESERVAR
 
-// *** ROTA PARA RESERVAR UM LIVRO ***
-router.post('/api/reservar', verifyToken, async (req, res) => {
-  const { bookId } = req.body;
-  const userId = req.userId; // O userId agora está disponível graças ao middleware
+// ROTA: Reservar um livro
+// Método para reservar um livro
+router.post('/reservar', verifyToken, async (req, res) => {
+  const { bookId } = req.body; // ID do livro enviado no corpo da requisição
+  const userId = req.userId; // ID do usuário autenticado (fornecido pelo middleware)
 
-  if (!bookId || !userId) {
-    return res.status(400).json({ error: 'Parâmetros obrigatórios faltando.' });
+  // Validação: Verificar se o campo `bookId` foi enviado
+  if (!bookId) {
+    return res.status(400).json({ error: 'O campo "bookId" é obrigatório.' });
+  }
+
+  // Validação: Verificar se o `bookId` é um ObjectId válido
+  if (!mongoose.Types.ObjectId.isValid(bookId)) {
+    return res.status(400).json({ error: 'ID do livro inválido.' });
   }
 
   try {
+    // Buscar o livro pelo ID
     const book = await Book.findById(bookId);
-    if (!book) return res.status(404).json({ error: 'Livro não encontrado.' });
+    if (!book) {
+      return res.status(404).json({ error: 'Livro não encontrado.' });
+    }
 
-    // Verifica se há cópias disponíveis
+    // Verificar se há cópias disponíveis para reserva
     if (book.quantity <= 0) {
       return res.status(400).json({ error: 'Nenhuma cópia disponível para reserva.' });
     }
-    
-    book.quantity -= 1; // Reduz a quantidade de livros disponíveis
+
+    // Atualizar a quantidade disponível do livro
+    book.quantity -= 1;
     await book.save();
 
-    // Atualiza o usuário para adicionar o livro reservado
-    await User.findByIdAndUpdate(userId, { $push: { reservedBooks: bookId } });
+    // Adicionar o livro à lista de livros reservados do usuário no `auth-api`
+    await User.findByIdAndUpdate(userId, { $addToSet: { reservedBooks: bookId } });
 
     res.status(200).json({ message: 'Livro reservado com sucesso!' });
   } catch (error) {
@@ -180,19 +191,23 @@ router.post('/api/reservar', verifyToken, async (req, res) => {
   }
 });
 
-// Rota para buscar livros reservados por usuário
-router.get('/api/reservado', async (req, res) => {
-  const userId = req.userId; // O userId agora está disponível graças ao middleware
+// ROTA: Buscar livros reservados por um usuário
+// MÉTODO: GET /api/books/reservas
+router.get('/reservas', verifyToken, async (req, res) => {
+  const userId = req.userId; // ID do usuário autenticado (fornecido pelo middleware)
 
   try {
+    // Busca o usuário e popula os dados dos livros reservados
     const user = await User.findById(userId).populate('reservedBooks');
-    if (!user) return res.status(404).json({ error: 'Usuário não encontrado.' });
+    if (!user) {
+      return res.status(404).json({ error: 'Usuário não encontrado.' });
+    }
 
-    res.status(200).json(user.reservedBooks);
+    res.status(200).json(user.reservedBooks); // Retorna os livros reservados
   } catch (error) {
     console.error('Erro ao buscar livros reservados:', error);
     res.status(500).json({ error: 'Erro interno do servidor.' });
   }
 });
 
-module.exports = router; // Exporta o roteador
+module.exports = router;

@@ -1,3 +1,5 @@
+require('/Users/PC/Pictures/-SITEBiblioteca/backend/auth-api/node_modules/dotenv').config(); // Caminho relativo para o arquivo .env do backendAuth
+
 const express = require('express');
 const mongoose = require('mongoose');
 const cors = require('cors');
