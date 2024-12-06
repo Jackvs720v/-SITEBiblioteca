@@ -6,7 +6,7 @@ const multer = require('multer'); // Importa o Multer
 const path = require('path'); // Para lidar com extensões de arquivos
 const fs = require('fs'); // Para verificar e criar diretórios
 
-const mid = require(`./auth-api/middlewares/authMiddleware`)
+const { verifyToken } = require('../middlewares/authMiddleware'); // Importa o middleware
 
 // Verificar e criar o diretório 'uploads' se não existir
 const uploadsDir = path.join(__dirname, '../uploads');
@@ -149,8 +149,8 @@ router.get('/:id', async (req, res) => {
 
 //RESERVAR
 
-// Rota para reservar um livro
-router.post('api/reservar', mid, async (req, res) => {
+// *** ROTA PARA RESERVAR UM LIVRO ***
+router.post('/api/reservar', verifyToken, async (req, res) => {
   const { bookId } = req.body;
   const userId = req.userId; // O userId agora está disponível graças ao middleware
 
@@ -162,12 +162,15 @@ router.post('api/reservar', mid, async (req, res) => {
     const book = await Book.findById(bookId);
     if (!book) return res.status(404).json({ error: 'Livro não encontrado.' });
 
-    // if (book.available <= 0) {
-    //   return res.status(400).json({ error: 'Nenhuma cópia disponível para reserva.' });
-    // }
+    // Verifica se há cópias disponíveis
+    if (book.quantity <= 0) {
+      return res.status(400).json({ error: 'Nenhuma cópia disponível para reserva.' });
+    }
     
-    book.available -= 1;
+    book.quantity -= 1; // Reduz a quantidade de livros disponíveis
     await book.save();
+
+    // Atualiza o usuário para adicionar o livro reservado
     await User.findByIdAndUpdate(userId, { $push: { reservedBooks: bookId } });
 
     res.status(200).json({ message: 'Livro reservado com sucesso!' });
@@ -178,7 +181,7 @@ router.post('api/reservar', mid, async (req, res) => {
 });
 
 // Rota para buscar livros reservados por usuário
-router.get('api/reservado', mid, async (req, res) => {
+router.get('/api/reservado', async (req, res) => {
   const userId = req.userId; // O userId agora está disponível graças ao middleware
 
   try {
@@ -191,7 +194,5 @@ router.get('api/reservado', mid, async (req, res) => {
     res.status(500).json({ error: 'Erro interno do servidor.' });
   }
 });
-
-
 
 module.exports = router; // Exporta o roteador
