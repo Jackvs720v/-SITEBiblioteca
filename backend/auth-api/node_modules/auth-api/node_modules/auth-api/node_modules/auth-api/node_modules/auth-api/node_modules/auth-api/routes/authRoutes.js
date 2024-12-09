@@ -16,7 +16,6 @@ router.get('/user', verifyToken, authController.getUserProfile);
 // Rota para atualizar dados do usuário
 router.put('/user', verifyToken, authController.updateUser);
 
-router
  
 module.exports = router; // Exporta o roteador para uso no app.js
  
