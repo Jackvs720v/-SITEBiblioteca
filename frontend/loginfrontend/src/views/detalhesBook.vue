@@ -15,10 +15,12 @@
             <div class="book-info">
               <h3 class="book-title">{{ book.title }}</h3>
               <p class="book-author">Autor: {{ book.author }}</p>
-              <p class="book-pages">Páginas: {{ book.pages || 'N/A' }}</p>
+              <p class="book-pages">Páginas: {{ book.paginas || 'N/A' }}</p>
               <p class="book-isbn">ISBN: {{ book.isbn }}</p>
-              <p class="book-copies">Cópias Alugadas: {{ book.copia || '2' }}</p>
-              <p class="book-available">Cópias disponíveis: {{ book.available || '2' }}</p>
+              <p class="book-copies">Cópias Disponíveis: {{ book.quantidade || 'N/A' }}</p>
+              <p class="book-copies">
+                Cópias Alugadas: {{ book.copia - book.quantidade || 'N/A' }}
+              </p>
               <p class="book-synopsis">{{ book.sinopse || 'Sinopse não disponível.' }}</p>
               <p class="book-publication">Ano de publicação: {{ book.year || 'N/A' }}</p>
               <p class="book-publisher">Editora: {{ book.editora || 'N/A' }}</p>
@@ -53,8 +55,7 @@
 import Navbar from "../components/NavBarAdm.vue";
 import axios from "axios";
 
-// Defina a base_url do axios para a API da porta 3000
-axios.defaults.baseURL = 'http://localhost:3000';
+axios.defaults.baseURL = "http://localhost:3000";
 
 export default {
   name: "DetalhesBook",
@@ -63,78 +64,60 @@ export default {
   },
   data() {
     return {
-      book: null, // Dados do livro
-      errorMessage: '', // Mensagem de erro
+      book: null,
+      errorMessage: "",
     };
   },
   methods: {
     async fetchBook() {
-      const bookId = this.$route.params.id; // Captura o ID do livro da URL
+      const bookId = this.$route.params.id;
       try {
         const response = await axios.get(`/api/books/${bookId}`);
-        this.book = response.data; // Carrega os detalhes do livro
-        this.errorMessage = ''; // Limpa a mensagem de erro, caso o livro seja carregado
+        this.book = response.data;
+        this.errorMessage = "";
       } catch (error) {
         console.error("Erro ao carregar o livro:", error.response?.data || error.message);
-        this.book = null; // Define o valor como null para exibir "Carregando"
-        this.errorMessage = "Erro ao carregar os detalhes do livro. Tente novamente mais tarde."; // Mensagem de erro
+        this.book = null;
+        this.errorMessage = "Erro ao carregar os detalhes do livro. Tente novamente mais tarde.";
       }
     },
     async reserveBook() {
-  const token = localStorage.getItem('token'); 
-  const userId = localStorage.getItem('userId'); 
+      const token = localStorage.getItem("token");
 
-  if (!token || !userId) {
-    alert("Você precisa estar logado para reservar um livro.");
-    this.$router.push('/login');
-    return;
-  }
-
-  try {
-    console.log("Iniciando a reserva...");
-    console.log("Token:", token);
-    console.log("UserID:", userId);
-    console.log("BookID:", this.book?._id);
-
-    this.errorMessage = "Processando sua reserva...";
-
-    const response = await axios.post(
-      '/api/books/reservar',
-      {
-        bookId: this.book?._id, 
-        userId: userId,       
-      },
-      { headers: { Authorization: `Bearer ${token}` } } 
-    );
-
-    console.log("Reserva bem-sucedida:", response.data);
-    await this.fetchBook(); 
-    alert(response.data.message); 
-    this.errorMessage = ""; 
-  } catch (error) {
-    console.error("Erro ao reservar o livro:", error.response?.data || error.message);
-    this.errorMessage = error.response?.data?.error || "Erro ao reservar o livro. Tente novamente.";
-  }
-},
-
-    async saveBook() {
-      const userId = localStorage.getItem('userId'); // Correção: Recuperando userId da chave certa
-      const token = localStorage.getItem('token'); // Verificando o token
-
-      if (!userId || !token) {
-        console.error("Usuário não está logado.");
-        alert("Você precisa estar logado para salvar um livro.");
-        this.$router.push('/login'); // Redireciona para a página de login
+      if (!token) {
+        alert("Você precisa estar logado para reservar um livro.");
+        this.$router.push("/login");
         return;
       }
 
-      console.log(`Salvando o livro: ${this.book.title}`);
+      try {
+        const response = await axios.post(
+          "/api/books/reservar",
+          { bookId: this.book._id },
+          { headers: { Authorization: `Bearer ${token}` } }
+        );
+        alert(response.data.message);
+        await this.fetchBook();
+      } catch (error) {
+        console.error("Erro ao reservar o livro:", error.response?.data || error.message);
+        this.errorMessage = error.response?.data?.error || "Erro ao reservar o livro.";
+      }
+    },
+    async saveBook() {
+      const token = localStorage.getItem("token");
+
+      if (!token) {
+        alert("Você precisa estar logado para salvar um livro.");
+        this.$router.push("/login");
+        return;
+      }
 
       try {
-        await axios.post('/api/save', {
-          userId,
-          bookId: this.book._id
-        });
+        await axios.post(
+          "/api/save",
+          { bookId: this.book._id },
+          { headers: { Authorization: `Bearer ${token}` } }
+        );
         alert("Livro salvo com sucesso!");
       } catch (error) {
         console.error("Erro ao salvar livro:", error.response?.data || error.message);
@@ -143,13 +126,12 @@ export default {
     },
   },
   mounted() {
-    this.fetchBook(); // Carrega os dados do livro ao montar o componente
+    this.fetchBook();
   },
 };
 </script>
 
 <style scoped>
-/* Estilização permanece igual ou pode ser ajustada para exibir detalhes do livro */
 #detalhesBook {
   font-family: 'Arial', sans-serif;
   padding: 20px;

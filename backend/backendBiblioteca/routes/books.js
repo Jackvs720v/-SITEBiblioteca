@@ -5,8 +5,8 @@ const router = express.Router(); // Cria o roteador
 const multer = require('multer'); // Importa o Multer
 const path = require('path'); // Para lidar com extensões de arquivos
 const fs = require('fs'); // Para verificar e criar diretórios
-
-const { verifyToken } = require('/Users/PC/Pictures/-SITEBiblioteca/backend/auth-api/middlewares/authMiddleware'); // Importa o middleware
+const mongoose = require('mongoose');
+const { verifyToken } = require('../middlewares/authMiddleware'); // Importa o middleware
 
 // Verificar e criar o diretório 'uploads' se não existir
 const uploadsDir = path.join(__dirname, '../uploads');
@@ -33,7 +33,7 @@ router.use('/uploads', express.static(path.join(__dirname, '../uploads')));
 
 // *** CRIAÇÃO (POST) ***
 router.post('/', upload, async (req, res) => {
-  const { title, author, year, isbn, editora, sinopse } = req.body;
+  const { title, author, year, isbn, editora, sinopse, paginas, quantidade, available, rating } = req.body;
   const image = req.file ? `/uploads/${req.file.filename}` : ''; // Caminho da imagem acessível pela URL
 
   try {
@@ -45,6 +45,10 @@ router.post('/', upload, async (req, res) => {
       image, // Salva o caminho da imagem como URL
       editora,
       sinopse,
+      paginas,
+      quantidade,
+      available,
+      rating,
     });
 
     await newBook.save();
@@ -68,10 +72,10 @@ router.get('/', async (req, res) => {
 
 // *** ATUALIZAÇÃO (PUT) ***
 router.put('/:id', upload, async (req, res) => {
-  const { title, author, year, isbn, editora, sinopse } = req.body;
+  const { title, author, year, isbn, editora, sinopse, quantidade } = req.body;
   const image = req.file ? `/uploads/${req.file.filename}` : undefined; // Atualiza apenas se houver nova imagem
 
-  const updatedData = { title, author, year, isbn, image, editora, sinopse };
+  const updatedData = { title, author, year, isbn, image, editora, sinopse, quantidade };
   if (image) updatedData.image = image;
 
   try {
@@ -149,11 +153,11 @@ router.get('/:id', async (req, res) => {
 
 //RESERVAR
 
-// ROTA: Reservar um livro
-// Método para reservar um livro
 router.post('/reservar', verifyToken, async (req, res) => {
   const { bookId } = req.body; // ID do livro enviado no corpo da requisição
   const userId = req.userId; // ID do usuário autenticado (fornecido pelo middleware)
+
+  
 
   // Validação: Verificar se o campo `bookId` foi enviado
   if (!bookId) {
@@ -165,6 +169,12 @@ router.post('/reservar', verifyToken, async (req, res) => {
     return res.status(400).json({ error: 'ID do livro inválido.' });
   }
 
+  if (!mongoose.Types.ObjectId.isValid(userId)) {
+    return res.status(400).json({ error: 'ID de usuário inválido.' });
+  }
+  
+// Verifique se o `userId` está corretamente atribuído
+console.log('userId:', userId); // Adiciona um log para verificar o `userId`
   try {
     // Buscar o livro pelo ID
     const book = await Book.findById(bookId);
@@ -172,24 +182,53 @@ router.post('/reservar', verifyToken, async (req, res) => {
       return res.status(404).json({ error: 'Livro não encontrado.' });
     }
 
-    // Verificar se há cópias disponíveis para reserva
-    if (book.quantity <= 0) {
+
+    // Verificar a quantidade de cópias disponíveis
+    console.log('Verificando a quantidade de cópias disponíveis...', book.quantidade);
+    if (book.quantidade <= 0) {
+      console.log('Erro: Nenhuma cópia disponível para reserva.');
       return res.status(400).json({ error: 'Nenhuma cópia disponível para reserva.' });
     }
 
-    // Atualizar a quantidade disponível do livro
-    book.quantity -= 1;
+    // Atualizar a quantidade do livro e a data de reserva
+    console.log('Atualizando a quantidade do livro e a data de reserva...');
+    book.quantidade -= 1;
+    book.reservationDate = new Date(); // Data e hora da reserva
     await book.save();
 
-    // Adicionar o livro à lista de livros reservados do usuário no `auth-api`
-    await User.findByIdAndUpdate(userId, { $addToSet: { reservedBooks: bookId } });
+    console.log('Livro atualizado com sucesso:', book);
 
-    res.status(200).json({ message: 'Livro reservado com sucesso!' });
+    // Adicionar o livro à lista de livros reservados do usuário
+    console.log('Adicionando o livro à lista de livros reservados do usuário...', userId, bookId);
+    // Buscar o usuário e adicionar o livro à lista de livros reservados
+    const user = await User.findById(userId);
+    if (!user) {
+      return res.status(404).json({ error: 'Usuário não encontrado.' });
+    }
+
+    // Adicionar o livro à lista de livros reservados do usuário
+    if (!user.reservedBooks.includes(bookId)) {
+      user.reservedBooks.push(bookId);
+      await user.save();  // Salvar as alterações no usuário
+    } else {
+      console.log('Livro já reservado por este usuário.');
+    }
+    
+    res.status(200).json({
+      message: 'Livro reservado com sucesso!',
+      book: {
+        id: book._id,
+        title: book.title,
+        reservationDate: book.reservationDate,
+      },
+      user: user, // Corrigido: Enviando o objeto `user` corretamente
+    });
   } catch (error) {
     console.error('Erro ao reservar livro:', error);
     res.status(500).json({ error: 'Erro interno do servidor.' });
   }
 });
+
 
 // ROTA: Buscar livros reservados por um usuário
 // MÉTODO: GET /api/books/reservas
@@ -208,6 +247,6 @@ router.get('/reservas', verifyToken, async (req, res) => {
     console.error('Erro ao buscar livros reservados:', error);
     res.status(500).json({ error: 'Erro interno do servidor.' });
   }
-});
+}); 
 
 module.exports = router;

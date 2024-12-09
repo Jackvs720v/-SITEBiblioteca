@@ -11,7 +11,7 @@ const userSchema = new mongoose.Schema({
     username: { type: String, required: true, unique: true }, // Nome de usuário obrigatório e único
     password: { type: String, required: true }, // Senha obrigatória
     sobre: { type: String, required: true}, //Informações pessoais do usuário
-    reservedBooks: [{ type: Schema.Types.ObjectId, ref: 'Book' }],
+    reservedBooks: [{ type: Schema.Types.ObjectId, ref: 'Book' }], // Campo de livros reservados
 });
 // Exporta o modelo de usuário
 module.exports = mongoose.model('User', userSchema);

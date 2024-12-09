@@ -14,12 +14,16 @@ app.use(cors());
 app.use(express.json());
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
+// Ativar logs de depuração do Mongoose
+mongoose.set('debug', true);
+
 // Conexão ao MongoDB
 mongoose
   .connect('mongodb+srv://edu22052016:v8MKsYY9WuJEKm55@clustereduardo.qkzgc.mongodb.net/library', {
     useNewUrlParser: true,
     useUnifiedTopology: true,
-  })
+    serverSelectionTimeoutMS: 30000, // Aumenta o tempo limite para 30 segundos
+      })
   .then(() => console.log('MongoDB conectado'))
   .catch((err) => console.error('Erro ao conectar ao MongoDB:', err));
 

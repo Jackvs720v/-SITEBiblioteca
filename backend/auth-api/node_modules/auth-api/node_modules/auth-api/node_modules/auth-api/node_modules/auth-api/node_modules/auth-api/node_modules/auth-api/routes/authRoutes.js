@@ -2,9 +2,6 @@ const express = require('express'); // Importa o Express
 const router = express.Router(); // Cria um roteador do Express
 const authController = require('../controllers/authController'); // Importa o controlador de autenticação
 const { verifyToken } = require('../middlewares/authMiddleware');
- 
-console.log('AuthController:', authController);
-console.log('VerifyToken Middleware:', verifyToken);
 
 // Rota para registrar novos usuários
 router.post('/register', authController.register);
@@ -18,6 +15,8 @@ router.get('/user', verifyToken, authController.getUserProfile);
 
 // Rota para atualizar dados do usuário
 router.put('/user', verifyToken, authController.updateUser);
+
+router
  
 module.exports = router; // Exporta o roteador para uso no app.js
  

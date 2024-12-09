@@ -22,6 +22,7 @@ app.use('/api/auth', authRoutes);
 mongoose.connect(process.env.MONGO_URI, {
     useNewUrlParser: true, // Usa o novo parser de URL do MongoDB
     useUnifiedTopology: true, // Usa o novo mecanismo de gerenciamento de conexões
+    serverSelectionTimeoutMS: 30000, // Aumenta o tempo limite para 30 segundos  
 })
 .then(() => console.log('Conectado ao MongoDB')) // Se conectar com sucesso, exibe mensagem no console
 .catch((error) => console.error('Erro ao conectar ao MongoDB:', error)); // Se falhar, exibe mensagem de erro

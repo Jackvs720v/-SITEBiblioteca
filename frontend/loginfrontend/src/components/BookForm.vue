@@ -19,7 +19,10 @@
     </div>
 
     <input v-model="book.editora" placeholder="Editora" required/>
-    <input v-model="book.sinopse" placeholder="Sinopse" required/>
+    <textarea v-model="book.sinopse" placeholder="Sinopse" required></textarea>
+    
+    <!-- Adicione o campo de quantidade -->
+    <input type="number" v-model.number="book.quantidade" placeholder="Quantidade" min="0" required/>
 
     <button type="submit">{{ book._id ? 'Atualizar' : 'Adicionar' }}</button>
   </form>
@@ -32,7 +35,16 @@ export default {
   props: ['bookToEdit'],
   data() {
     return {
-      book: this.bookToEdit || { title: '', author: '', year: null, isbn: '', image: null, editora: '', sinopse: '' },
+      book: this.bookToEdit || { 
+        title: '', 
+        author: '', 
+        year: null, 
+        isbn: '', 
+        image: null, 
+        editora: '', 
+        sinopse: '', 
+        quantidade: 0 // Inicialize quantidade
+      },
       selectedImage: null, // Guardar a imagem selecionada
       imagePreview: null, // Guardar a URL da imagem para pré-visualização
     };
@@ -41,7 +53,16 @@ export default {
     bookToEdit: {
       immediate: true,
       handler(newVal) {
-        this.book = newVal || { title: '', author: '', year: null, isbn: '', image: null, editora: '', sinopse: '' };
+        this.book = newVal || { 
+          title: '', 
+          author: '', 
+          year: null, 
+          isbn: '', 
+          image: null, 
+          editora: '', 
+          sinopse: '', 
+          quantidade: 0 // Garante que o valor inicial é 0 se não for passado
+        };
         if (newVal && newVal.image) {
           // Caso o livro tenha uma imagem, defina a URL da imagem
           this.imagePreview = newVal.image;
@@ -58,7 +79,7 @@ export default {
     },
     // Função para enviar o formulário
     handleSubmit() {
-      console.log("Conteúdo de selectedImage:", this.selectedImage); // <-- ADICIONE AQUI
+      console.log("Conteúdo de selectedImage:", this.selectedImage);
       const formData = new FormData();
       formData.append('title', this.book.title);
       formData.append('author', this.book.author);
@@ -66,6 +87,7 @@ export default {
       formData.append('isbn', this.book.isbn);
       formData.append('editora', this.book.editora);
       formData.append('sinopse', this.book.sinopse);
+      formData.append('quantidade', this.book.quantidade); // Inclua o campo quantidade
 
       if (this.selectedImage) {
         formData.append('image', this.selectedImage);

@@ -10,7 +10,7 @@ const BookSchema = new mongoose.Schema({
     editora: { type: String },
     sinopse: { type: String },
     paginas: { type: String },
-    quantidade: { type: String },
+    quantidade: { type: Number, default: 0  },
     rating: { 
         type: Number, 
         min: 0, 
@@ -26,7 +26,8 @@ const BookSchema = new mongoose.Schema({
         type: Number, 
         default: 0, // Inicia com 0, para contar o número total de avaliações
     },
-    available: { type: Number, default: 0 },  // Cópias disponíveis
+    available: { type: Number, default: 0 }, // Cópias disponíveis
+    reservationDate: { type: Date, default: null }, // Data e hora da reserva
 });
 
 // Exportando o modelo
