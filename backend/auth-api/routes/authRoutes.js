@@ -19,6 +19,10 @@ router.put('/user', verifyToken, authController.updateUser);
 // Rota para reserva de livro
 router.post('/reservar', verifyToken, authController.reserveBook); 
 
+// Rota para obter as reservas do usuário
+router.get('/reservas', verifyToken, authController.getUserReservations);
+
+
 module.exports = router; // Exporta o roteador para uso no app.js
  
  

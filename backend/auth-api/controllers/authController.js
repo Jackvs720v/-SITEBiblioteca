@@ -1,3 +1,4 @@
+const { default: axios } = require('axios');
 const User = require('../models/user'); // Importa o modelo de usuário
 const bcrypt = require('bcryptjs'); // Importa bcrypt para hash de senhas
 const jwt = require('jsonwebtoken'); // Importa jsonwebtoken para criar tokens JWT
@@ -105,16 +106,20 @@ exports.reserveBook = async (req, res) => {
     const { bookId } = req.body;
     const userId = req.userId; // Obtém o ID do usuário autenticado do token
 
+    if (!userId) {
+        return res.status(401).json({ error: 'Acesso não autorizado. ID do usuário não encontrado.' });
+    }
+
     console.log('Iniciando processo de reserva de livro...');
     console.log('ID do livro:', bookId);
     console.log('ID do usuário:', userId);
 
     try {
-        const libraryBackendURL = process.env.LIBRARY_BACKEND_URL || 'http://localhost:5000';
+        const libraryBackendURL = 'http://localhost:3000/api';
         console.log('URL do backend da biblioteca:', libraryBackendURL);
 
         // Verifica se o livro existe no library-backend
-        const bookResponse = await axios.get(`${libraryBackendURL}/api/books/${bookId}`);
+        const bookResponse = await axios.get(`${libraryBackendURL}/books/${bookId}`);
         console.log('Resposta do backend da biblioteca:', bookResponse.data);
         const book = bookResponse.data;
 
@@ -144,13 +149,21 @@ exports.reserveBook = async (req, res) => {
         await user.save();
         console.log('Reserva salva com sucesso no banco de dados.');
 
-        res.status(200).json({
+        // Resposta padrão para sucesso, similar ao updateUser
+        res.json({
             message: 'Livro reservado com sucesso!',
-            reservations: user.reservations,
+            reservations: user.reservations, // Retorna as reservas do usuário
+            user: {
+                id: user._id,
+                name: user.name,
+                reservations: user.reservations.length, // Exemplo de retorno de dados relevantes do usuário
+            },
         });
+
         console.log('Resposta enviada ao cliente com sucesso.');
     } catch (error) {
         console.error('Erro ao reservar livro:', error.message);
+
         if (error.response) {
             console.log('Erro de resposta do backend da biblioteca:', error.response.data);
             return res.status(error.response.status).json({
@@ -158,7 +171,33 @@ exports.reserveBook = async (req, res) => {
                 details: error.response.data,
             });
         }
+
         console.log('Erro desconhecido:', error);
         res.status(500).json({ error: 'Erro ao reservar livro.', details: error.message });
     }
 };
+
+// Função para obter as reservas de livros do usuário
+exports.getUserReservations = async (req, res) => {
+    const userId = req.userId; // Obtém o ID do usuário a partir do token
+
+    if (!userId) {
+        return res.status(401).json({ error: 'Acesso não autorizado. ID do usuário não encontrado.' });
+    }
+
+    try {
+        // Encontra o usuário e retorna suas reservas
+        const user = await User.findById(userId).select('reservations'); // Apenas seleciona as reservas
+
+        if (!user) {
+            return res.status(404).json({ error: 'Usuário não encontrado.' });
+        }
+
+        res.status(200).json({ reservations: user.reservations }); // Retorna as reservas
+    } catch (error) {
+        console.error('Erro ao obter reservas:', error.message);
+        res.status(500).json({ error: 'Erro ao obter reservas de livros.' });
+    }
+};
+
+

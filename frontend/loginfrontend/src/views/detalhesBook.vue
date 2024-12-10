@@ -53,10 +53,8 @@
 
 <script>
 import Navbar from "../components/NavBarAdm.vue";
-import axios from "axios";
-import api from "@/services/api";
-
-axios.defaults.baseURL = "http://localhost:3000";
+import api from "../axios";  // Instância configurada para localhost:5000
+import axios from "axios";  // Instância padrão para localhost:3000
 
 export default {
   name: "DetalhesBook",
@@ -73,7 +71,8 @@ export default {
     async fetchBook() {
       const bookId = this.$route.params.id;
       try {
-        const response = await axios.get(`/api/books/${bookId}`);
+        // Usa 'api' para pegar os detalhes do livro, que é configurado para localhost:3000
+        const response = await axios.get(`http://localhost:3000/api/books/${bookId}`);
         this.book = response.data;
         this.errorMessage = "";
       } catch (error) {
@@ -84,7 +83,8 @@ export default {
     },
     async reserveBook() {
       try {
-        const response = await api.post('/auth/reservar', { bookId: this.book._id }); // Utiliza a instância configurada
+        // Usa 'api' para fazer a reserva (localhost:5000)
+        const response = await api.post('/auth/reservar', { bookId: this.book._id });
         alert(response.data.message);
         await this.fetchBook(); // Atualiza os detalhes após reservar
       } catch (error) {
@@ -92,27 +92,7 @@ export default {
         this.errorMessage = error.response?.data?.error || "Erro ao reservar o livro.";
       }
     },
-    async saveBook() {
-      const token = localStorage.getItem("token");
-
-      if (!token) {
-        alert("Você precisa estar logado para salvar um livro.");
-        this.$router.push("/login");
-        return;
-      }
-
-      try {
-        await axios.post(
-          "/api/save",
-          { bookId: this.book._id },
-          { headers: { Authorization: `Bearer ${token}` } }
-        );
-        alert("Livro salvo com sucesso!");
-      } catch (error) {
-        console.error("Erro ao salvar livro:", error.response?.data || error.message);
-        alert("Falha ao salvar o livro.");
-      }
-    },
+    // Adicione outros métodos aqui conforme necessário.
   },
   mounted() {
     this.fetchBook();

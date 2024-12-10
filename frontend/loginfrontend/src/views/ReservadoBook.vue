@@ -1,146 +1,66 @@
 <template>
-   <NavBarAdm />
-
-  <div id="reservado">
-    <div class="layout">
-      <h1>Livros Reservados</h1>
-      <div v-if="reservadoBooks.length" class="book-container">
-        <div class="book-card" v-for="book in reservadoBooks" :key="book.id">
-          <img
-            :src="book.image ? `http://localhost:3000${book.image}` : 'default-cover.jpg'"
-            alt="Capa do livro"
-            class="book-cover"
-          />
-          <div class="book-info">
-            <h3 class="book-title">{{ book.title }}</h3>
-            <p class="book-author">Autor: {{ book.author }}</p>
-            <p class="book-synopsis">{{ book.synopsis }}</p>
+  <div>
+    <NavBarAdm />
+    <div id="reservado">
+      <div class="layout">
+        <h1>Livros Reservados</h1>
+        <div v-if="reservations.length" class="book-container">
+          <div class="book-card" v-for="reservation in reservations" :key="reservation._id">
+            <!-- Exibe a imagem do livro, com uma imagem padrão caso não tenha -->
+            <img
+              :src="reservation.bookId.image ? `http://localhost:3000/${reservation.bookId.image}` : 'default-cover.jpg'"
+              alt="Capa do livro"
+              class="book-cover"
+            />
+            <div class="book-info">
+              <!-- Exibe o título, autor, sinopse e data de reserva -->
+              <h3 class="book-title">{{ reservation.bookId.title }}</h3>
+              <p class="book-author">Autor: {{ reservation.bookId.author }}</p>
+              <p class="book-synopsis">{{ reservation.bookId.synopsis }}</p>
+              <p class="book-reserved-date">Data de reserva: {{ new Date(reservation.reservedAt).toLocaleDateString() }}</p>
+            </div>
           </div>
         </div>
-      </div>
-      <div v-else>
-        <p>Você não possui livros reservados.</p>
+        <div v-else>
+          <p>Você não possui livros reservados.</p>
+        </div>
       </div>
     </div>
   </div>
 </template>
 
 <script>
-import NavBarAdm from '@/components/NavBarAdm.vue';
+import axios from 'axios';
+import NavBarAdm from '../components/NavBarAdm.vue';
 
 export default {
-  components:{
-  NavBarAdm,
-},
+  components: {
+    NavBarAdm,
+  },
   data() {
     return {
-      user: null,
-      reservadoBooks: [],  // Lista de livros reservados
-      message: ''
+      reservations: [],  // Lista de reservas
     };
   },
-  methods: {
-    // Função para buscar os dados do usuário
-    async fetchUserData() {
-      const token = localStorage.getItem('token');
-      
-      if (!token) {
-        this.message = "Você precisa estar logado para acessar os dados do perfil!";
-        return;
-      }
-
-      try {
-        const response = await fetch('http://localhost:3000/auth/user', {
-          method: 'GET',
-          headers: {
-            Authorization: `Bearer ${token}`  // Passando o token no cabeçalho
-          }
-        });
-
-        if (!response.ok) {
-          throw new Error('Erro ao buscar dados do usuário');
-        }
-
-        const data = await response.json();
-        this.user = data;  // Dados do usuário
-        this.fetchReservados(); // Após obter os dados do usuário, buscar os livros reservados
-      } catch (error) {
-        this.message = "Erro ao buscar os dados do usuário.";
-        console.error(error);
-      }
-    },
-
-    // Função para buscar os livros reservados
-    async fetchReservados() {
-      const token = localStorage.getItem('token');
-      
-      if (!token) {
-        this.message = "Você precisa estar logado para ver os livros reservados!";
-        return;
-      }
-
-      try {
-        const response = await fetch('http://localhost:3000/reservado', {
-          method: 'GET',
-          headers: {
-            Authorization: `Bearer ${token}`  // Passando o token de autenticação no cabeçalho
-          }
-        });
-
-        if (!response.ok) {
-          throw new Error('Erro ao buscar livros reservados');
-        }
-
-        const data = await response.json();
-        
-        // Verifique se a resposta tem dados
-        if (data && data.length > 0) {
-          this.reservadoBooks = data; // Livros reservados
-        } else {
-          this.message = "Você não tem livros reservados.";
-        }
-      } catch (error) {
-        this.message = "Erro ao buscar os livros reservados.";
-        console.error("Erro ao buscar livros reservados:", error.message);
-      }
-    },
-
-    // Função para reservar um livro
-    async reservarLivro(livroId) {
-      const token = localStorage.getItem('token');
-  
-      if (!token) {
-        this.message = "Você precisa estar logado para reservar um livro!";
-        return;
-      }
-  
-      try {
-        const response = await fetch('http://localhost:5000/api/auth/reservar', {
-          method: 'POST',
-          headers: {
-            Authorization: `Bearer ${token}`,
-            'Content-Type': 'application/json'  // Definindo o tipo de conteúdo como JSON
-          },
-          body: JSON.stringify({
-            livroId: livroId  // Passando o id do livro para reservar
-          })
-        });
-
-        if (!response.ok) {
-          throw new Error('Erro ao tentar reservar o livro');
-        }
-
-        this.message = "Livro reservado com sucesso!";
-        this.fetchReservados(); // Atualiza os livros reservados após reserva
-      } catch (error) {
-        this.message = "Erro ao tentar reservar o livro!";
-        console.error("Erro ao reservar livro:", error.message);
-      }
-    }
+  created() {
+    this.fetchReservations(); // Busca as reservas ao carregar o componente
   },
-  mounted() {
-    this.fetchUserData(); // Chama a função ao montar o componente
-  }
+  methods: {
+    async fetchReservations() {
+      try {
+        const response = await axios.get('http://localhost:5000/api/auth/reservas', {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem('token')}`, // Usa o token armazenado
+          },
+        });
+
+        this.reservations = response.data.reservations; // Salva as reservas recebidas
+      } catch (error) {
+        console.error('Erro ao carregar as reservas:', error);
+        alert('Erro ao carregar as reservas.');
+      }
+    },
+  },
 };
 </script>
 
@@ -148,6 +68,11 @@ export default {
 #reservado {
   font-family: 'Arial', sans-serif;
   padding: 20px;
+}
+
+.layout {
+  max-width: 1200px;
+  margin: 0 auto;
 }
 
 .book-container {
@@ -169,8 +94,8 @@ export default {
 }
 
 .book-cover {
-  width: 100px;
-  height: 150px;
+  width: 120px;
+  height: 180px;
   margin-bottom: 15px;
 }
 
@@ -185,8 +110,8 @@ export default {
 }
 
 .book-author,
-.book-rented-date,
-.book-return-date {
+.book-synopsis,
+.book-reserved-date {
   font-size: 0.9em;
   color: #666;
   margin-bottom: 5px;

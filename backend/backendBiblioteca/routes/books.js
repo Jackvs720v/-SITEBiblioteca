@@ -1,12 +1,12 @@
 const express = require('express'); // Importa o Express
 const Book = require('../models/Book'); // Importa o modelo Book
-const User = require('/Users/dsadm.EDUC501/Videos/-SITEBiblioteca/backend/auth-api/models/user'); // Modelo de Usuário
+//const User = require('/Users/dsadm.EDUC501/Videos/-SITEBiblioteca/backend/auth-api/models/user'); // Modelo de Usuário
 const router = express.Router(); // Cria o roteador
 const multer = require('multer'); // Importa o Multer
 const path = require('path'); // Para lidar com extensões de arquivos
 const fs = require('fs'); // Para verificar e criar diretórios
-const mongoose = require('mongoose');
-const { verifyToken } = require('../middlewares/authMiddleware'); // Importa o middleware
+//const mongoose = require('mongoose');
+//const { verifyToken } = require('../middlewares/authMiddleware'); // Importa o middleware
 
 // Verificar e criar o diretório 'uploads' se não existir
 const uploadsDir = path.join(__dirname, '../uploads');
