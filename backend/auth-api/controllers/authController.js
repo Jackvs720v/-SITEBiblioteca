@@ -100,3 +100,65 @@ exports.getUserProfile = async (req, res) => {
         res.status(500).json({ error: 'Erro ao atualizar os dados' });
     }
 };
+
+exports.reserveBook = async (req, res) => {
+    const { bookId } = req.body;
+    const userId = req.userId; // Obtém o ID do usuário autenticado do token
+
+    console.log('Iniciando processo de reserva de livro...');
+    console.log('ID do livro:', bookId);
+    console.log('ID do usuário:', userId);
+
+    try {
+        const libraryBackendURL = process.env.LIBRARY_BACKEND_URL || 'http://localhost:5000';
+        console.log('URL do backend da biblioteca:', libraryBackendURL);
+
+        // Verifica se o livro existe no library-backend
+        const bookResponse = await axios.get(`${libraryBackendURL}/api/books/${bookId}`);
+        console.log('Resposta do backend da biblioteca:', bookResponse.data);
+        const book = bookResponse.data;
+
+        if (!book) {
+            console.log('Livro não encontrado no backend da biblioteca.');
+            return res.status(404).json({ error: 'Livro não encontrado no estoque.' });
+        }
+
+        // Busca o usuário pelo ID
+        const user = await User.findById(userId);
+        console.log('Usuário encontrado no banco de dados:', user);
+
+        if (!user) {
+            console.log('Usuário não encontrado no banco de dados.');
+            return res.status(404).json({ error: 'Usuário não encontrado.' });
+        }
+
+        // Verifica se o usuário já atingiu o limite de reservas
+        if (user.reservations.length >= user.reservationLimit) {
+            console.log('Usuário atingiu o limite de reservas.');
+            return res.status(400).json({ error: 'Você atingiu o limite de reservas de livros.' });
+        }
+
+        // Adiciona o livro à lista de reservas do usuário
+        console.log('Adicionando livro à lista de reservas do usuário...');
+        user.reservations.push({ bookId, reservedAt: new Date() });
+        await user.save();
+        console.log('Reserva salva com sucesso no banco de dados.');
+
+        res.status(200).json({
+            message: 'Livro reservado com sucesso!',
+            reservations: user.reservations,
+        });
+        console.log('Resposta enviada ao cliente com sucesso.');
+    } catch (error) {
+        console.error('Erro ao reservar livro:', error.message);
+        if (error.response) {
+            console.log('Erro de resposta do backend da biblioteca:', error.response.data);
+            return res.status(error.response.status).json({
+                error: 'Erro ao buscar o livro no library-backend.',
+                details: error.response.data,
+            });
+        }
+        console.log('Erro desconhecido:', error);
+        res.status(500).json({ error: 'Erro ao reservar livro.', details: error.message });
+    }
+};

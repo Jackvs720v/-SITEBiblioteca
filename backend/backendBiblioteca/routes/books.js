@@ -1,6 +1,6 @@
 const express = require('express'); // Importa o Express
 const Book = require('../models/Book'); // Importa o modelo Book
-const User = require('/Users/PC/Pictures/-SITEBiblioteca/backend/auth-api/models/user'); // Modelo de Usuário (corrigido o caminho)
+const User = require('/Users/dsadm.EDUC501/Videos/-SITEBiblioteca/backend/auth-api/models/user'); // Modelo de Usuário
 const router = express.Router(); // Cria o roteador
 const multer = require('multer'); // Importa o Multer
 const path = require('path'); // Para lidar com extensões de arquivos
@@ -153,100 +153,82 @@ router.get('/:id', async (req, res) => {
 
 //RESERVAR
 
-router.post('/reservar', verifyToken, async (req, res) => {
-  const { bookId } = req.body; // ID do livro enviado no corpo da requisição
-  const userId = req.userId; // ID do usuário autenticado (fornecido pelo middleware)
+// router.post('/reservar', verifyToken, async (req, res) => {
+//   const { bookId } = req.body; // ID do livro enviado no corpo da requisição
+//   const userId = req.userId; // ID do usuário autenticado (fornecido pelo middleware)
 
-  
+//   if (!bookId) {
+//     return res.status(400).json({ error: 'O campo "bookId" é obrigatório.' });
+//   }
 
-  // Validação: Verificar se o campo `bookId` foi enviado
-  if (!bookId) {
-    return res.status(400).json({ error: 'O campo "bookId" é obrigatório.' });
-  }
+//   if (!mongoose.Types.ObjectId.isValid(bookId) || !mongoose.Types.ObjectId.isValid(userId)) {
+//     return res.status(400).json({ error: 'ID de livro ou usuário inválido.' });
+//   }
 
-  // Validação: Verificar se o `bookId` é um ObjectId válido
-  if (!mongoose.Types.ObjectId.isValid(bookId)) {
-    return res.status(400).json({ error: 'ID do livro inválido.' });
-  }
+//   try {
+//     // Buscar usuário no banco
+//     const user = await User.findById(userId);
+//     if (!user) {
+//       return res.status(404).json({ error: 'Usuário não encontrado.' });
+//     }
 
-  if (!mongoose.Types.ObjectId.isValid(userId)) {
-    return res.status(400).json({ error: 'ID de usuário inválido.' });
-  }
-  
-// Verifique se o `userId` está corretamente atribuído
-console.log('userId:', userId); // Adiciona um log para verificar o `userId`
-  try {
-    // Buscar o livro pelo ID
-    const book = await Book.findById(bookId);
-    if (!book) {
-      return res.status(404).json({ error: 'Livro não encontrado.' });
-    }
+//     // Verificar limite de reservas
+//     if (user.reservedBooks.length >= user.reservationLimit) {
+//       return res.status(400).json({ error: 'Você atingiu o limite de livros reservados.' });
+//     }
 
+//     // Buscar livro no banco
+//     const book = await Book.findById(bookId);
+//     if (!book) {
+//       return res.status(404).json({ error: 'Livro não encontrado.' });
+//     }
 
-    // Verificar a quantidade de cópias disponíveis
-    console.log('Verificando a quantidade de cópias disponíveis...', book.quantidade);
-    if (book.quantidade <= 0) {
-      console.log('Erro: Nenhuma cópia disponível para reserva.');
-      return res.status(400).json({ error: 'Nenhuma cópia disponível para reserva.' });
-    }
+//     if (book.quantidade <= 0) {
+//       return res.status(400).json({ error: 'Nenhuma cópia disponível para reserva.' });
+//     }
 
-    // Atualizar a quantidade do livro e a data de reserva
-    console.log('Atualizando a quantidade do livro e a data de reserva...');
-    book.quantidade -= 1;
-    book.reservationDate = new Date(); // Data e hora da reserva
-    await book.save();
+//     // Atualizar o estoque do livro
+//     book.quantidade -= 1;
+//     book.reservationDate = new Date();
+//     await book.save();
 
-    console.log('Livro atualizado com sucesso:', book);
+//     // Adicionar o livro na lista de reservas do usuário
+//     user.reservedBooks.push({
+//       bookId: book._id,
+//       title: book.title,
+//       reservedAt: new Date(),
+//     });
+//     await user.save();
 
-    // Adicionar o livro à lista de livros reservados do usuário
-    console.log('Adicionando o livro à lista de livros reservados do usuário...', userId, bookId);
-    // Buscar o usuário e adicionar o livro à lista de livros reservados
-    const user = await User.findById(userId);
-    if (!user) {
-      return res.status(404).json({ error: 'Usuário não encontrado.' });
-    }
-
-    // Adicionar o livro à lista de livros reservados do usuário
-    if (!user.reservedBooks.includes(bookId)) {
-      user.reservedBooks.push(bookId);
-      await user.save();  // Salvar as alterações no usuário
-    } else {
-      console.log('Livro já reservado por este usuário.');
-    }
-    
-    res.status(200).json({
-      message: 'Livro reservado com sucesso!',
-      book: {
-        id: book._id,
-        title: book.title,
-        reservationDate: book.reservationDate,
-      },
-      user: user, // Corrigido: Enviando o objeto `user` corretamente
-    });
-  } catch (error) {
-    console.error('Erro ao reservar livro:', error);
-    res.status(500).json({ error: 'Erro interno do servidor.' });
-  }
-});
+//     res.status(200).json({
+//       message: 'Livro reservado com sucesso!',
+//       reservations: user.reservedBooks,
+//     });
+//   } catch (error) {
+//     console.error('Erro ao reservar livro:', error.message);
+//     res.status(500).json({ error: 'Erro interno do servidor.' });
+//   }
+// });
 
 
-// ROTA: Buscar livros reservados por um usuário
-// MÉTODO: GET /api/books/reservas
-router.get('/reservas', verifyToken, async (req, res) => {
-  const userId = req.userId; // ID do usuário autenticado (fornecido pelo middleware)
 
-  try {
-    // Busca o usuário e popula os dados dos livros reservados
-    const user = await User.findById(userId).populate('reservedBooks');
-    if (!user) {
-      return res.status(404).json({ error: 'Usuário não encontrado.' });
-    }
+// // ROTA: Buscar livros reservados por um usuário
+// // MÉTODO: GET /api/books/reservas
+// router.get('/reservas', verifyToken, async (req, res) => {
+//   const userId = req.userId; // ID do usuário autenticado (fornecido pelo middleware)
 
-    res.status(200).json(user.reservedBooks); // Retorna os livros reservados
-  } catch (error) {
-    console.error('Erro ao buscar livros reservados:', error);
-    res.status(500).json({ error: 'Erro interno do servidor.' });
-  }
-}); 
+//   try {
+//     // Busca o usuário e popula os dados dos livros reservados
+//     const user = await User.findById(userId).populate('reservedBooks');
+//     if (!user) {
+//       return res.status(404).json({ error: 'Usuário não encontrado.' });
+//     }
+
+//     res.status(200).json(user.reservedBooks); // Retorna os livros reservados
+//   } catch (error) {
+//     console.error('Erro ao buscar livros reservados:', error);
+//     res.status(500).json({ error: 'Erro interno do servidor.' });
+//   }
+// }); 
 
 module.exports = router;

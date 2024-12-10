@@ -54,6 +54,7 @@
 <script>
 import Navbar from "../components/NavBarAdm.vue";
 import axios from "axios";
+import api from "@/services/api";
 
 axios.defaults.baseURL = "http://localhost:3000";
 
@@ -82,22 +83,10 @@ export default {
       }
     },
     async reserveBook() {
-      const token = localStorage.getItem("token");
-
-      if (!token) {
-        alert("Você precisa estar logado para reservar um livro.");
-        this.$router.push("/login");
-        return;
-      }
-
       try {
-        const response = await axios.post(
-          "/api/books/reservar",
-          { bookId: this.book._id },
-          { headers: { Authorization: `Bearer ${token}` } }
-        );
+        const response = await api.post('/auth/reservar', { bookId: this.book._id }); // Utiliza a instância configurada
         alert(response.data.message);
-        await this.fetchBook();
+        await this.fetchBook(); // Atualiza os detalhes após reservar
       } catch (error) {
         console.error("Erro ao reservar o livro:", error.response?.data || error.message);
         this.errorMessage = error.response?.data?.error || "Erro ao reservar o livro.";
